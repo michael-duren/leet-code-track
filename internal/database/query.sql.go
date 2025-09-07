@@ -285,6 +285,80 @@ func (q *Queries) ListNextReviewedProblems(ctx context.Context) ([]ListNextRevie
 	return items, nil
 }
 
+const listProblems = `-- name: ListProblems :many
+SELECT 
+    id,
+    problem_number,
+    title,
+    difficulty,
+    date_attempted,
+    first_review_date,
+    second_review_date,
+    final_review_date,
+    status,
+    pattern,
+    notes,
+    CASE 
+        WHEN status = 1 THEN date(date_attempted, '+3 days')
+        WHEN status = 2 THEN date(first_review_date, '+7 days')
+        WHEN status = 3 THEN date(second_review_date, '+20 days')
+        ELSE NULL
+    END as next_review_date
+FROM problems 
+ORDER BY date_attempted ASC
+`
+
+type ListProblemsRow struct {
+	ID               int64       `json:"id"`
+	ProblemNumber    int64       `json:"problem_number"`
+	Title            string      `json:"title"`
+	Difficulty       int64       `json:"difficulty"`
+	DateAttempted    time.Time   `json:"date_attempted"`
+	FirstReviewDate  interface{} `json:"first_review_date"`
+	SecondReviewDate interface{} `json:"second_review_date"`
+	FinalReviewDate  interface{} `json:"final_review_date"`
+	Status           int64       `json:"status"`
+	Pattern          *string     `json:"pattern"`
+	Notes            *string     `json:"notes"`
+	NextReviewDate   interface{} `json:"next_review_date"`
+}
+
+func (q *Queries) ListProblems(ctx context.Context) ([]ListProblemsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listProblems)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListProblemsRow
+	for rows.Next() {
+		var i ListProblemsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProblemNumber,
+			&i.Title,
+			&i.Difficulty,
+			&i.DateAttempted,
+			&i.FirstReviewDate,
+			&i.SecondReviewDate,
+			&i.FinalReviewDate,
+			&i.Status,
+			&i.Pattern,
+			&i.Notes,
+			&i.NextReviewDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTodaysProblems = `-- name: ListTodaysProblems :many
 SELECT 
     id,

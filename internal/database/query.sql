@@ -1,3 +1,25 @@
+-- name: ListProblems :many
+SELECT 
+    id,
+    problem_number,
+    title,
+    difficulty,
+    date_attempted,
+    first_review_date,
+    second_review_date,
+    final_review_date,
+    status,
+    pattern,
+    notes,
+    CASE 
+        WHEN status = 1 THEN date(date_attempted, '+3 days')
+        WHEN status = 2 THEN date(first_review_date, '+7 days')
+        WHEN status = 3 THEN date(second_review_date, '+20 days')
+        ELSE NULL
+    END as next_review_date
+FROM problems 
+ORDER BY date_attempted ASC;
+
 -- 1. Get all problems that need review today
 -- name: ListTodaysProblems :many
 SELECT 
