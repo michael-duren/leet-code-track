@@ -23,6 +23,10 @@ clean:
 	@echo "Cleaning..."
 	@rm -f main
 
+db:
+	@echo "Generating sqlc..."
+	@sqlc generate
+
 # Live Reload
 watch:
 	@if command -v air > /dev/null; then \

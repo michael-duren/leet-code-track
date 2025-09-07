@@ -1,0 +1,4 @@
+### Get todays problems slightly obvious from the url name
+get http://localhost:8080/api/problems/today
+
+curl http://localhost:8080/api/problems/today

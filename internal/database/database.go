@@ -1,17 +1,24 @@
+// Package database - queries & service
 package database
 
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/charmbracelet/log"
+
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 )
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
 
 // Service represents a service that interacts with a database.
 type Service interface {
@@ -22,10 +29,14 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
+
+	Queries() *Queries
+	DB() *sql.DB
 }
 
 type service struct {
-	db *sql.DB
+	db      *sql.DB
+	queries *Queries
 }
 
 var (
@@ -33,7 +44,7 @@ var (
 	dbInstance *service
 )
 
-func New() Service {
+func NewDatabase() Service {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
@@ -46,10 +57,39 @@ func New() Service {
 		log.Fatal(err)
 	}
 
+	if err := runMigrations(db); err != nil {
+		log.Fatal("Failed to run migrations: ", "err", err)
+	}
+
+	queries := New(db)
+
 	dbInstance = &service{
-		db: db,
+		db:      db,
+		queries: queries,
 	}
 	return dbInstance
+}
+
+func (s *service) DB() *sql.DB {
+	return s.db
+}
+
+func (s *service) Queries() *Queries {
+	return s.queries
+}
+
+func runMigrations(db *sql.DB) error {
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		return err
+	}
+
+	if err := goose.Up(db, "migrations"); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Health checks the health of the database connection by pinging the database.

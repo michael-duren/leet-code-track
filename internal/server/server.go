@@ -1,15 +1,15 @@
+// Package server
 package server
 
 import (
 	"fmt"
+	"leet-code-track/internal/database"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
-
-	"leet-code-track/internal/database"
 )
 
 type Server struct {
@@ -23,7 +23,7 @@ func NewServer() *http.Server {
 	NewServer := &Server{
 		port: port,
 
-		db: database.New(),
+		db: database.NewDatabase(),
 	}
 
 	// Declare Server config

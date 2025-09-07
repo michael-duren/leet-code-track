@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"leet-code-track/internal/handlers"
 	"log"
 	"net/http"
 
@@ -9,6 +10,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
+
+var h *handlers.Handlers
+
+func init() {
+	h = handlers.NewHandlers()
+}
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
@@ -22,6 +29,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
+	r.Route("/api", func(r chi.Router) {
+		r.Get("/problems/today", h.ProblemHandlers.GetTodaysProblems)
+	})
 	r.Get("/", s.HelloWorldHandler)
 
 	r.Get("/health", s.healthHandler)

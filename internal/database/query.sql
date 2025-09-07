@@ -1,4 +1,5 @@
 -- 1. Get all problems that need review today
+-- name: ListTodaysProblems :many
 SELECT 
     id,
     problem_number,
@@ -27,6 +28,7 @@ AND (
 ORDER BY date_attempted ASC;
 
 -- 2. Get all problems with calculated next review date
+-- name: ListNextReviewedProblems :many
 SELECT 
     id,
     problem_number,
@@ -56,26 +58,29 @@ FROM problems
 ORDER BY date_attempted DESC;
 
 -- 3. Insert new problem
+-- name: CreateProblem :exec
 INSERT INTO problems (problem_number, title, difficulty, pattern, notes)
 VALUES (?, ?, ?, ?, ?);
 
 -- 4. Update problem status (mark as reviewed)
--- For first review
+-- name: UpdateForFirstReview :exec
 UPDATE problems 
 SET status = 2, first_review_date = CURRENT_TIMESTAMP 
 WHERE id = ? AND status = 1;
 
 -- For second review
+-- name: UpdateForSecondReview :exec
 UPDATE problems 
 SET status = 3, second_review_date = CURRENT_TIMESTAMP 
 WHERE id = ? AND status = 2;
 
--- For mastered
+-- name: UpdateForMasterReview :exec
 UPDATE problems 
 SET status = 4, final_review_date = CURRENT_TIMESTAMP 
 WHERE id = ? AND status = 3;
 
 -- 5. Mark problem as needing more review (reset review timer but keep status)
+-- name: ResetReviewTimer :exec
 UPDATE problems 
 SET 
     first_review_date = CASE WHEN status = 2 THEN CURRENT_TIMESTAMP ELSE first_review_date END,
@@ -83,6 +88,7 @@ SET
 WHERE id = ?;
 
 -- 6. Get statistics
+-- name: GetProblemStatistics :many
 SELECT 
     COUNT(*) as total_problems,
     COUNT(CASE WHEN status = 4 THEN 1 END) as mastered_count,
@@ -95,6 +101,7 @@ SELECT
 FROM problems;
 
 -- 7. Get problems by pattern/topic
+-- name: GetProblemsByTopic :many
 SELECT 
     pattern,
     COUNT(*) as count,
@@ -106,14 +113,17 @@ GROUP BY pattern
 ORDER BY count DESC;
 
 -- 8. Update problem notes
+-- name: UpdateProblemNotes :exec
 UPDATE problems 
 SET notes = ? 
 WHERE id = ?;
 
 -- 9. Delete problem
+-- name: DeleteProblem :exec
 DELETE FROM problems WHERE id = ?;
 
 -- 10. Get problem by ID
+-- name: GetProblemById :one
 SELECT 
     id,
     problem_number,
@@ -130,6 +140,7 @@ FROM problems
 WHERE id = ?;
 
 -- 11. Search problems by title or pattern
+-- name: SearchProblems :many
 SELECT 
     id,
     problem_number,
