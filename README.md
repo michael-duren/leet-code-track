@@ -1,6 +1,6 @@
 # LeetCode Progress Tracker
 
-<img height="20rem" alt="Screenshot 2025-09-08 at 7 03 57 AM" src="https://github.com/user-attachments/assets/77917b47-a763-4cb2-84e9-4a6b24a2316e" />
+<img height="200rem" alt="Screenshot 2025-09-08 at 7 03 57 AM" src="https://github.com/user-attachments/assets/77917b47-a763-4cb2-84e9-4a6b24a2316e" />
 
 
 A personal productivity tool designed to optimize coding interview preparation through intelligent spaced repetition. This application helps software engineers systematically track their progress on LeetCode problems, automatically scheduling reviews based on proven memory retention principles. Built with SolidJS, TypeScript, and SQLite, it provides a clean, fast interface for managing your algorithm practice journey from beginner fundamentals through advanced interview preparation.
