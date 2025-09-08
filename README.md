@@ -20,10 +20,14 @@ git clone https://github.com/yourusername/leet-code-track.git
 cd leet-code-track
 
 # Install dependencies
-npm install
+go mod tidy
+cd frontend && npm install
 
-# Initialize the database
-npm run db:init
+# DB Setup
+# If the database does not exist it will be created when starting
+# the go lang server
+# You can optionally run the seed.sql file to add some problems
+# to test with
 ```
 
 ## Features
