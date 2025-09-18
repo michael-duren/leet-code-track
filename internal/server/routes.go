@@ -2,9 +2,10 @@ package server
 
 import (
 	"encoding/json"
-	"leet-code-track/internal/handlers"
 	"log"
 	"net/http"
+
+	"leet-code-track/internal/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -30,10 +31,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}))
 
 	r.Route("/api", func(r chi.Router) {
+		r.Get("/problems", h.ProblemHandlers.GetAllProblems)
 		r.Get("/problems/today", h.ProblemHandlers.GetTodaysProblems)
+		r.Get("/problems/reviews", h.ProblemHandlers.GetNextReviewedProblems)
+		r.Get("/problems/stats", h.ProblemHandlers.GetStats)
+		r.Get("/problems/topics", h.ProblemHandlers.GetProblemsByTopic)
+		r.Get("/problems/search", h.ProblemHandlers.SearchProblems)
+		r.Get("/problems/{id}", h.ProblemHandlers.GetProblemByID)
+		r.Post("/problems", h.ProblemHandlers.CreateProblem)
+		r.Put("/problems/{id}/first-review", h.ProblemHandlers.UpdateForFirstReview)
+		r.Put("/problems/{id}/second-review", h.ProblemHandlers.UpdateForSecondReview)
+		r.Put("/problems/{id}/master-review", h.ProblemHandlers.UpdateForMasterReview)
+		r.Put("/problems/{id}/reset-timer", h.ProblemHandlers.ResetReviewTimer)
+		r.Put("/problems/{id}/notes", h.ProblemHandlers.UpdateProblemNotes)
+		r.Delete("/problems/{id}", h.ProblemHandlers.DeleteProblem)
 	})
 	r.Get("/", s.HelloWorldHandler)
-
 	r.Get("/health", s.healthHandler)
 
 	return r

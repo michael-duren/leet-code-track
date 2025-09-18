@@ -10,9 +10,10 @@ import (
 	"time"
 )
 
-const createProblem = `-- name: CreateProblem :exec
+const createProblem = `-- name: CreateProblem :one
 INSERT INTO problems (problem_number, title, difficulty, pattern, notes)
 VALUES (?, ?, ?, ?, ?)
+RETURNING id
 `
 
 type CreateProblemParams struct {
@@ -24,15 +25,17 @@ type CreateProblemParams struct {
 }
 
 // 3. Insert new problem
-func (q *Queries) CreateProblem(ctx context.Context, arg CreateProblemParams) error {
-	_, err := q.db.ExecContext(ctx, createProblem,
+func (q *Queries) CreateProblem(ctx context.Context, arg CreateProblemParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, createProblem,
 		arg.ProblemNumber,
 		arg.Title,
 		arg.Difficulty,
 		arg.Pattern,
 		arg.Notes,
 	)
-	return err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const deleteProblem = `-- name: DeleteProblem :exec
@@ -516,6 +519,7 @@ const updateForFirstReview = `-- name: UpdateForFirstReview :exec
 UPDATE problems 
 SET status = 2, first_review_date = CURRENT_TIMESTAMP 
 WHERE id = ? AND status = 1
+RETURNING id
 `
 
 // 4. Update problem status (mark as reviewed)

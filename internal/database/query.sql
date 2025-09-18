@@ -80,15 +80,17 @@ FROM problems
 ORDER BY date_attempted DESC;
 
 -- 3. Insert new problem
--- name: CreateProblem :exec
+-- name: CreateProblem :one
 INSERT INTO problems (problem_number, title, difficulty, pattern, notes)
-VALUES (?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?)
+RETURNING id;
 
 -- 4. Update problem status (mark as reviewed)
 -- name: UpdateForFirstReview :exec
 UPDATE problems 
 SET status = 2, first_review_date = CURRENT_TIMESTAMP 
-WHERE id = ? AND status = 1;
+WHERE id = ? AND status = 1
+RETURNING id;
 
 -- For second review
 -- name: UpdateForSecondReview :exec

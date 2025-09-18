@@ -1,4 +1,79 @@
-### Get todays problems slightly obvious from the url name
-get http://localhost:8080/api/problems/today
+### Get all problems
+GET http://localhost:8080/api/problems
 
+### Get today's problems (due for review)
+GET http://localhost:8080/api/problems/today
+
+### Get problems scheduled for review
+GET http://localhost:8080/api/problems/reviews
+
+### Get problem statistics
+GET http://localhost:8080/api/problems/stats
+
+### Get problems grouped by topic/pattern
+GET http://localhost:8080/api/problems/topics
+
+### Search problems by title or pattern
+GET http://localhost:8080/api/problems/search?q=array
+
+### Get specific problem by ID
+GET http://localhost:8080/api/problems/1
+
+### Create a new problem
+POST http://localhost:8080/api/problems
+Content-Type: application/json
+
+{
+  "problem_number": 1,
+  "title": "Two Sum",
+  "difficulty": 1,
+  "pattern": "Hash Table",
+  "notes": "Classic hash table problem"
+}
+
+### Update problem for first review
+PUT http://localhost:8080/api/problems/1/first-review
+
+### Update problem for second review
+PUT http://localhost:8080/api/problems/1/second-review
+
+### Update problem for master review (mark as mastered)
+PUT http://localhost:8080/api/problems/1/master-review
+
+### Reset review timer for a problem
+PUT http://localhost:8080/api/problems/1/reset-timer
+
+### Update problem notes
+PUT http://localhost:8080/api/problems/1/notes
+Content-Type: application/json
+
+{
+  "notes": "Updated notes about the solution approach"
+}
+
+### Delete a problem
+DELETE http://localhost:8080/api/problems/1
+
+### Curl examples
+# Get today's problems
 curl http://localhost:8080/api/problems/today
+
+# Get all problems
+curl http://localhost:8080/api/problems
+
+# Create a new problem
+curl -X POST http://localhost:8080/api/problems \
+  -H "Content-Type: application/json" \
+  -d '{
+    "problem_number": 2,
+    "title": "Add Two Numbers",
+    "difficulty": 2,
+    "pattern": "Linked List",
+    "notes": "Simulate addition with linked lists"
+  }'
+
+# Update for first review
+curl -X PUT http://localhost:8080/api/problems/2/first-review
+
+# Search problems
+curl "http://localhost:8080/api/problems/search?q=linked"

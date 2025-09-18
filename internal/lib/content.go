@@ -35,3 +35,11 @@ func HandleDatabaseError(w http.ResponseWriter, err error) {
 	log.Error("Error: ", "err", err)
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 }
+
+func HandleDatabaseQueryResponse[TResponse any](w http.ResponseWriter, resp TResponse, err error) {
+	if err != nil {
+		HandleDatabaseError(w, err)
+		return
+	}
+	RenderJSON(w, 200, resp)
+}
