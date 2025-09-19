@@ -32,9 +32,9 @@ const AddProblem = () => {
     const newErrors: Record<string, string> = {};
 
     if (!problemNumber().trim()) {
-      newErrors.problemNumber = 'Problem number is required';
+      newErrors.problem_number = 'Problem number is required';
     } else if (!/^\d+$/.test(problemNumber().trim())) {
-      newErrors.problemNumber = 'Problem number must be a valid number';
+      newErrors.problem_number = 'Problem number must be a valid number';
     }
 
     if (!title().trim()) {
@@ -46,7 +46,7 @@ const AddProblem = () => {
     }
 
     if (!dateAttempted()) {
-      newErrors.dateAttempted = 'Date attempted is required';
+      newErrors.date_attempted = 'Date attempted is required';
     }
 
     setErrors(newErrors);
@@ -64,7 +64,7 @@ const AddProblem = () => {
 
     try {
       const problemData: CreateProblemRequest = {
-        problemNumber: parseInt(problemNumber().trim()),
+        problem_number: parseInt(problemNumber().trim()),
         title: title().trim(),
         difficulty: difficulty(),
         pattern: pattern().trim(),
@@ -130,13 +130,13 @@ const AddProblem = () => {
             <input
               type="text"
               placeholder="e.g., 1, 15, 121"
-              class={`input input-bordered ${errors().problemNumber ? 'input-error' : ''}`}
+              class={`input input-bordered ${errors().problem_number ? 'input-error' : ''}`}
               value={problemNumber()}
               onInput={(e) => setProblemNumber(e.target.value)}
             />
-            {errors().problemNumber && (
+            {errors().problem_number && (
               <label class="label">
-                <span class="label-text-alt text-error">{errors().problemNumber}</span>
+                <span class="label-text-alt text-error">{errors().problem_number}</span>
               </label>
             )}
           </div>
@@ -238,13 +238,13 @@ const AddProblem = () => {
             </label>
             <input
               type="date"
-              class={`input input-bordered ${errors().dateAttempted ? 'input-error' : ''}`}
+              class={`input input-bordered ${errors().date_attempted ? 'input-error' : ''}`}
               value={dateAttempted()}
               onInput={(e) => setDateAttempted(e.target.value)}
             />
-            {errors().dateAttempted && (
+            {errors().date_attempted && (
               <label class="label">
-                <span class="label-text-alt text-error">{errors().dateAttempted}</span>
+                <span class="label-text-alt text-error">{errors().date_attempted}</span>
               </label>
             )}
           </div>

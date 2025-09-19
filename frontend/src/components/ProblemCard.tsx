@@ -36,8 +36,8 @@ const ProblemCard = (props: ProblemCardProps) => {
   };
 
   const isOverdue = () => {
-    if (!props.problem.nextReviewDate) return false;
-    const reviewDate = new Date(props.problem.nextReviewDate);
+    if (!props.problem.next_review_date) return false;
+    const reviewDate = new Date(props.problem.next_review_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     reviewDate.setHours(0, 0, 0, 0);
@@ -47,14 +47,14 @@ const ProblemCard = (props: ProblemCardProps) => {
   return (
     <div
       class={`card bg-base-100 shadow-md hover:shadow-lg transition-shadow ${
-        props.problem.isReviewDue ? "ring-2 ring-warning ring-opacity-50" : ""
+        props.problem.is_review_due ? "ring-2 ring-warning ring-opacity-50" : ""
       }`}
     >
       <div class="card-body p-4">
         <div class="flex items-start justify-between mb-3">
           <div class="flex items-center gap-2 flex-wrap">
             <div class="badge badge-outline font-mono text-xs">
-              #{props.problem.problemNumber}
+              #{props.problem.problem_number}
             </div>
             <h3 class="font-semibold text-lg leading-tight">
               {props.problem.title}
@@ -64,7 +64,7 @@ const ProblemCard = (props: ProblemCardProps) => {
             </div>
           </div>
 
-          {props.onEdit && (
+          {props.on_edit && (
             <div class="dropdown dropdown-end">
               <label tabindex={0} class="btn btn-ghost btn-sm btn-square">
                 <EllipsisVertical size={16} />
@@ -74,7 +74,7 @@ const ProblemCard = (props: ProblemCardProps) => {
                 class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32"
               >
                 <li>
-                  <button onClick={() => props.onEdit!(props.problem.id)}>
+                  <button onClick={() => props.on_edit!(props.problem.id)}>
                     <PenLine size={14} />
                     Edit
                   </button>
@@ -96,7 +96,7 @@ const ProblemCard = (props: ProblemCardProps) => {
           <Calendar size={14} />
           <span class="text-base-content/70">Next Review:</span>
           <span class={isOverdue() ? "text-error font-medium" : ""}>
-            {formatDate(props.problem.nextReviewDate)}
+            {formatDate(props.problem.next_review_date)}
           </span>
           {isOverdue() && <div class="badge badge-error badge-xs">Overdue</div>}
         </div>
@@ -118,13 +118,13 @@ const ProblemCard = (props: ProblemCardProps) => {
             <>
               <button
                 class="btn btn-success btn-sm"
-                onClick={() => props.onMarkReviewed(props.problem.id)}
+                onClick={() => props.on_mark_reviewed(props.problem.id)}
               >
                 ✅ Mark Reviewed
               </button>
               <button
                 class="btn btn-warning btn-sm"
-                onClick={() => props.onNeedsMoreReview(props.problem.id)}
+                onClick={() => props.on_needs_more_review(props.problem.id)}
               >
                 🔄 More Review
               </button>

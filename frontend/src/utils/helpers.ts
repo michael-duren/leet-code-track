@@ -78,9 +78,9 @@ export const sortProblems = (
     let bValue: any;
 
     switch (sortBy) {
-      case 'problemNumber':
-        aValue = a.problemNumber;
-        bValue = b.problemNumber;
+      case 'problem_number':
+        aValue = a.problem_number;
+        bValue = b.problem_number;
         break;
       case 'title':
         aValue = a.title.toLowerCase();
@@ -100,10 +100,10 @@ export const sortProblems = (
         aValue = a.pattern.toLowerCase();
         bValue = b.pattern.toLowerCase();
         break;
-      case 'dateAttempted':
+      case 'date_attempted':
       default:
-        aValue = new Date(a.dateAttempted).getTime();
-        bValue = new Date(b.dateAttempted).getTime();
+        aValue = new Date(a.date_attempted).getTime();
+        bValue = new Date(b.date_attempted).getTime();
         break;
     }
 
@@ -131,7 +131,7 @@ export const filterProblems = (
       const searchLower = filters.searchTerm.toLowerCase();
       const matchesSearch = 
         problem.title.toLowerCase().includes(searchLower) ||
-        problem.problemNumber.toString().includes(searchLower) ||
+        problem.problem_number.toString().includes(searchLower) ||
         problem.pattern.toLowerCase().includes(searchLower) ||
         problem.notes.toLowerCase().includes(searchLower);
       
@@ -229,15 +229,15 @@ export const calculateStreak = (problems: Problem[]): number => {
   // This is a simplified streak calculation
   // In a real app, you'd want to track daily review activity
   const sortedProblems = problems
-    .filter(p => p.dateAttempted)
-    .sort((a, b) => new Date(b.dateAttempted).getTime() - new Date(a.dateAttempted).getTime());
+    .filter(p => p.date_attempted)
+    .sort((a, b) => new Date(b.date_attempted).getTime() - new Date(a.date_attempted).getTime());
 
   let streak = 0;
   let currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
   for (const problem of sortedProblems) {
-    const problemDate = new Date(problem.dateAttempted);
+    const problemDate = new Date(problem.date_attempted);
     problemDate.setHours(0, 0, 0, 0);
 
     if (problemDate.getTime() === currentDate.getTime()) {

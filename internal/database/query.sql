@@ -112,7 +112,7 @@ SET
 WHERE id = ?;
 
 -- 6. Get statistics
--- name: GetProblemStatistics :many
+-- name: GetProblemStatistics :one
 SELECT 
     COUNT(*) as total_problems,
     COUNT(CASE WHEN status = 4 THEN 1 END) as mastered_count,

@@ -69,7 +69,7 @@ func (p *ProblemService) DeleteProblem(ctx context.Context, problemID int64) err
 	return p.q.DeleteProblem(ctx, problemID)
 }
 
-func (p *ProblemService) GetStats(ctx context.Context) ([]database.GetProblemStatisticsRow, error) {
+func (p *ProblemService) GetStats(ctx context.Context) (database.GetProblemStatisticsRow, error) {
 	return p.q.GetProblemStatistics(ctx)
 }
 

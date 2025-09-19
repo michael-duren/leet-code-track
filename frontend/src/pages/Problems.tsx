@@ -14,30 +14,30 @@ const Problems = () => {
     return [
       {
         id: 1,
-        problemNumber: 1,
+        problem_number: 1,
         title: "Two Sum",
         difficulty: "Easy" as const,
-        dateAttempted: "2025-01-01",
+        date_attempted: "2025-01-01",
         status: "FirstReview" as const,
         pattern: "Hash Table",
         notes: "Classic two pointer approach",
       },
       {
         id: 2,
-        problemNumber: 15,
+        problem_number: 15,
         title: "3Sum",
         difficulty: "Medium" as const,
-        dateAttempted: "2025-01-02",
+        date_attempted: "2025-01-02",
         status: "New" as const,
         pattern: "Two Pointers",
         notes: "Remember to handle duplicates",
       },
       {
         id: 3,
-        problemNumber: 121,
+        problem_number: 121,
         title: "Best Time to Buy and Sell Stock",
         difficulty: "Easy" as const,
-        dateAttempted: "2025-01-03",
+        date_attempted: "2025-01-03",
         status: "Mastered" as const,
         pattern: "Dynamic Programming",
         notes: "Simple DP problem",
@@ -50,7 +50,7 @@ const Problems = () => {
     return allProblems.filter(problem => {
       const matchesSearch = !searchTerm() || 
         problem.title.toLowerCase().includes(searchTerm().toLowerCase()) ||
-        problem.problemNumber.toString().includes(searchTerm());
+        problem.problem_number.toString().includes(searchTerm());
       
       const matchesDifficulty = difficultyFilter() === 'all' || 
         problem.difficulty === difficultyFilter();
@@ -217,7 +217,7 @@ const Problems = () => {
                     <For each={paginatedProblems()}>
                       {(problem) => (
                         <tr>
-                          <td class="font-mono">{problem.problemNumber}</td>
+                          <td class="font-mono">{problem.problem_number}</td>
                           <td class="font-semibold">{problem.title}</td>
                           <td>
                             <div class={getDifficultyBadgeClass(problem.difficulty)}>
@@ -233,7 +233,7 @@ const Problems = () => {
                             <div class="badge badge-outline">{problem.pattern}</div>
                           </td>
                           <td>
-                            {new Date(problem.dateAttempted).toLocaleDateString()}
+                            {new Date(problem.date_attempted).toLocaleDateString()}
                           </td>
                           <td>
                             <div class="flex gap-2">
@@ -256,7 +256,7 @@ const Problems = () => {
                       <div class="card-body p-4">
                         <div class="flex items-start justify-between mb-3">
                           <div class="flex items-center gap-2">
-                            <div class="badge badge-outline font-mono">#{problem.problemNumber}</div>
+                            <div class="badge badge-outline font-mono">#{problem.problem_number}</div>
                             <h3 class="font-semibold">{problem.title}</h3>
                           </div>
                           <div class={getDifficultyBadgeClass(problem.difficulty)}>
@@ -270,7 +270,7 @@ const Problems = () => {
                           <div class="badge badge-outline">{problem.pattern}</div>
                         </div>
                         <div class="text-sm text-base-content/70 mb-3">
-                          Attempted: {new Date(problem.dateAttempted).toLocaleDateString()}
+                          Attempted: {new Date(problem.date_attempted).toLocaleDateString()}
                         </div>
                         <div class="flex gap-2">
                           <button class="btn btn-xs btn-primary">Edit</button>

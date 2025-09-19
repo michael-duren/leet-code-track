@@ -23,7 +23,7 @@ const FilterBar = (props: FilterBarProps) => {
     difficulty: 'all',
     status: 'all',
     pattern: 'all',
-    sortBy: 'dateAttempted',
+    sortBy: 'date_attempted',
     sortOrder: 'desc'
   });
 
@@ -39,7 +39,7 @@ const FilterBar = (props: FilterBarProps) => {
       difficulty: 'all',
       status: 'all',
       pattern: 'all',
-      sortBy: 'dateAttempted',
+      sortBy: 'date_attempted',
       sortOrder: 'desc'
     };
     setFilters(clearedFilters);
@@ -145,10 +145,10 @@ const FilterBar = (props: FilterBarProps) => {
                     updateFilters({ sortBy, sortOrder: sortOrder as 'asc' | 'desc' });
                   }}
                 >
-                  <option value="dateAttempted_desc">Newest First</option>
-                  <option value="dateAttempted_asc">Oldest First</option>
-                  <option value="problemNumber_asc">Problem # (Low to High)</option>
-                  <option value="problemNumber_desc">Problem # (High to Low)</option>
+                  <option value="date_attempted_desc">Newest First</option>
+                  <option value="date_attempted_asc">Oldest First</option>
+                  <option value="problem_number_asc">Problem # (Low to High)</option>
+                  <option value="problem_number_desc">Problem # (High to Low)</option>
                   <option value="title_asc">Title (A-Z)</option>
                   <option value="title_desc">Title (Z-A)</option>
                   <option value="difficulty_asc">Difficulty (Easy First)</option>

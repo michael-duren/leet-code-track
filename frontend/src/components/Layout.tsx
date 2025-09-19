@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-solid";
 import { createEffect, createSignal, onMount, type JSX } from "solid-js";
+import { Toaster } from "solid-toast";
 
 interface LayoutProps {
   children?: JSX.Element;
@@ -63,6 +64,16 @@ const Layout = (props: LayoutProps) => {
 
   return (
     <div class="min-h-screen bg-base-100">
+      <Toaster
+        toastOptions={{
+          style: {
+            background: "#1f2937",
+            color: "#f3f4f6",
+          },
+        }}
+        position="top-right"
+        gutter={64}
+      />
       {/* Mobile header */}
       <div class="navbar bg-base-200 lg:hidden">
         <div class="flex-none">
@@ -182,4 +193,3 @@ const Layout = (props: LayoutProps) => {
 };
 
 export default Layout;
-

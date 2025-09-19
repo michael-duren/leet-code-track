@@ -4,28 +4,28 @@ export type ProblemStatus = "New" | "FirstReview" | "SecondReview" | "Mastered";
 
 export interface Problem {
   id: number;
-  problemNumber: number;
+  problem_number: number;
   title: string;
   difficulty: Difficulty;
-  dateAttempted: string; // ISO date string
-  firstReviewDate?: string | null;
-  secondReviewDate?: string | null;
-  finalReviewDate?: string | null;
+  date_attempted: string; // ISO date string
+  first_review_date?: string | null;
+  second_review_date?: string | null;
+  final_review_date?: string | null;
   status: ProblemStatus;
   pattern: string;
   notes: string;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ProblemWithReviewInfo extends Problem {
-  nextReviewDate?: string | null;
-  reviewStatus: "Due" | "Scheduled" | "Mastered";
-  isReviewDue: boolean;
+  next_review_date?: string | null;
+  review_status: "Due" | "Scheduled" | "Mastered";
+  is_review_due: boolean;
 }
 
 export interface CreateProblemRequest {
-  problemNumber: number;
+  problem_number: number;
   title: string;
   difficulty: Difficulty;
   pattern?: string;
@@ -41,22 +41,22 @@ export interface UpdateProblemRequest {
 }
 
 export interface ProblemStats {
-  totalProblems: number;
-  masteredCount: number;
-  newCount: number;
-  firstReviewCount: number;
-  secondReviewCount: number;
-  easyCount: number;
-  mediumCount: number;
-  hardCount: number;
-  reviewsDueToday: number;
+  total_problems: number;
+  mastered_count: number;
+  new_count: number;
+  first_review_count: number;
+  second_review_count: number;
+  easy_count: number;
+  medium_count: number;
+  hard_count: number;
+  reviews_due_today: number;
 }
 
 export interface PatternStats {
   pattern: string;
   count: number;
   mastered: number;
-  masteryPercentage: number;
+  mastery_percentage: number;
 }
 
 export const getDifficultyColor = (difficulty: Difficulty): string => {
@@ -103,23 +103,24 @@ export const getStatusColor = (status: ProblemStatus): string => {
 };
 
 export const calculateNextReviewDate = (problem: Problem): Date | null => {
-  const { status, dateAttempted, firstReviewDate, secondReviewDate } = problem;
+  const { status, date_attempted, first_review_date, second_review_date } =
+    problem;
 
   switch (status) {
     case "New":
       return new Date(
-        new Date(dateAttempted).getTime() + 3 * 24 * 60 * 60 * 1000,
+        new Date(date_attempted).getTime() + 3 * 24 * 60 * 60 * 1000,
       );
     case "FirstReview":
-      return firstReviewDate
+      return first_review_date
         ? new Date(
-            new Date(firstReviewDate).getTime() + 7 * 24 * 60 * 60 * 1000,
+            new Date(first_review_date).getTime() + 7 * 24 * 60 * 60 * 1000,
           )
         : null;
     case "SecondReview":
-      return secondReviewDate
+      return second_review_date
         ? new Date(
-            new Date(secondReviewDate).getTime() + 20 * 24 * 60 * 60 * 1000,
+            new Date(second_review_date).getTime() + 20 * 24 * 60 * 60 * 1000,
           )
         : null;
     case "Mastered":
@@ -166,23 +167,23 @@ export interface PaginatedResponse<T> {
   items: T[];
   total: number;
   page: number;
-  pageSize: number;
-  totalPages: number;
+  page_size: number;
+  total_pages: number;
 }
 
 // Component prop types
 export interface ProblemCardProps {
   problem: ProblemWithReviewInfo;
-  onMarkReviewed: (problemId: number) => void;
-  onNeedsMoreReview: (problemId: number) => void;
-  onEdit?: (problemId: number) => void;
+  on_mark_reviewed: (problem_id: number) => void;
+  on_needs_more_review: (problem_id: number) => void;
+  on_edit?: (problem_id: number) => void;
 }
 
 export interface ProblemFormProps {
   problem?: Problem;
-  onSubmit: (data: CreateProblemRequest | UpdateProblemRequest) => void;
-  onCancel: () => void;
-  isLoading?: boolean;
+  on_submit: (data: CreateProblemRequest | UpdateProblemRequest) => void;
+  on_cancel: () => void;
+  is_loading?: boolean;
 }
 
 export interface StatsCardProps {

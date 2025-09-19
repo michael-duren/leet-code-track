@@ -99,7 +99,7 @@ func (q *Queries) GetProblemById(ctx context.Context, id int64) (GetProblemByIdR
 	return i, err
 }
 
-const getProblemStatistics = `-- name: GetProblemStatistics :many
+const getProblemStatistics = `-- name: GetProblemStatistics :one
 SELECT 
     COUNT(*) as total_problems,
     COUNT(CASE WHEN status = 4 THEN 1 END) as mastered_count,
@@ -124,36 +124,20 @@ type GetProblemStatisticsRow struct {
 }
 
 // 6. Get statistics
-func (q *Queries) GetProblemStatistics(ctx context.Context) ([]GetProblemStatisticsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getProblemStatistics)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetProblemStatisticsRow
-	for rows.Next() {
-		var i GetProblemStatisticsRow
-		if err := rows.Scan(
-			&i.TotalProblems,
-			&i.MasteredCount,
-			&i.NewCount,
-			&i.FirstReviewCount,
-			&i.SecondReviewCount,
-			&i.EasyCount,
-			&i.MediumCount,
-			&i.HardCount,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetProblemStatistics(ctx context.Context) (GetProblemStatisticsRow, error) {
+	row := q.db.QueryRowContext(ctx, getProblemStatistics)
+	var i GetProblemStatisticsRow
+	err := row.Scan(
+		&i.TotalProblems,
+		&i.MasteredCount,
+		&i.NewCount,
+		&i.FirstReviewCount,
+		&i.SecondReviewCount,
+		&i.EasyCount,
+		&i.MediumCount,
+		&i.HardCount,
+	)
+	return i, err
 }
 
 const getProblemsByTopic = `-- name: GetProblemsByTopic :many

@@ -8,36 +8,36 @@ const Analytics = () => {
   const [stats] = createResource<ProblemStats>(async () => {
     // TODO: Replace with actual API call
     return {
-      totalProblems: 45,
-      masteredCount: 18,
-      newCount: 20,
-      firstReviewCount: 5,
-      secondReviewCount: 2,
-      easyCount: 20,
-      mediumCount: 20,
-      hardCount: 5,
-      reviewsDueToday: 3,
+      total_problems: 45,
+      mastered_count: 18,
+      new_count: 20,
+      first_review_count: 5,
+      second_review_count: 2,
+      easy_count: 20,
+      medium_count: 20,
+      hard_count: 5,
+      reviews_due_today: 3,
     };
   });
 
   const [patternStats] = createResource<PatternStats[]>(async () => {
     // TODO: Replace with actual API call
     return [
-      { pattern: "Array", count: 12, mastered: 8, masteryPercentage: 67 },
-      { pattern: "Hash Table", count: 8, mastered: 6, masteryPercentage: 75 },
-      { pattern: "Two Pointers", count: 6, mastered: 4, masteryPercentage: 67 },
+      { pattern: "Array", count: 12, mastered: 8, mastery_percentage: 67 },
+      { pattern: "Hash Table", count: 8, mastered: 6, mastery_percentage: 75 },
+      { pattern: "Two Pointers", count: 6, mastered: 4, mastery_percentage: 67 },
       {
         pattern: "Dynamic Programming",
         count: 10,
         mastered: 3,
-        masteryPercentage: 30,
+        mastery_percentage: 30,
       },
-      { pattern: "Tree", count: 5, mastered: 4, masteryPercentage: 80 },
+      { pattern: "Tree", count: 5, mastered: 4, mastery_percentage: 80 },
       {
         pattern: "Binary Search",
         count: 4,
         mastered: 3,
-        masteryPercentage: 75,
+        mastery_percentage: 75,
       },
     ];
   });
@@ -53,7 +53,7 @@ const Analytics = () => {
 
   const masteryRate = () => {
     const s = stats();
-    return s ? Math.round((s.masteredCount / s.totalProblems) * 100) : 0;
+    return s ? Math.round((s.mastered_count / s.total_problems) * 100) : 0;
   };
 
   const getDifficultyBreakdown = () => {
@@ -63,18 +63,18 @@ const Analytics = () => {
     return [
       {
         difficulty: "Easy",
-        count: s.easyCount,
-        percentage: Math.round((s.easyCount / s.totalProblems) * 100),
+        count: s.easy_count,
+        percentage: Math.round((s.easy_count / s.total_problems) * 100),
       },
       {
         difficulty: "Medium",
-        count: s.mediumCount,
-        percentage: Math.round((s.mediumCount / s.totalProblems) * 100),
+        count: s.medium_count,
+        percentage: Math.round((s.medium_count / s.total_problems) * 100),
       },
       {
         difficulty: "Hard",
-        count: s.hardCount,
-        percentage: Math.round((s.hardCount / s.totalProblems) * 100),
+        count: s.hard_count,
+        percentage: Math.round((s.hard_count / s.total_problems) * 100),
       },
     ];
   };
@@ -86,27 +86,27 @@ const Analytics = () => {
     return [
       {
         status: "New",
-        count: s.newCount,
+        count: s.new_count,
         color: "bg-info",
-        percentage: Math.round((s.newCount / s.totalProblems) * 100),
+        percentage: Math.round((s.new_count / s.total_problems) * 100),
       },
       {
         status: "First Review",
-        count: s.firstReviewCount,
+        count: s.first_review_count,
         color: "bg-warning",
-        percentage: Math.round((s.firstReviewCount / s.totalProblems) * 100),
+        percentage: Math.round((s.first_review_count / s.total_problems) * 100),
       },
       {
         status: "Second Review",
-        count: s.secondReviewCount,
+        count: s.second_review_count,
         color: "bg-accent",
-        percentage: Math.round((s.secondReviewCount / s.totalProblems) * 100),
+        percentage: Math.round((s.second_review_count / s.total_problems) * 100),
       },
       {
         status: "Mastered",
-        count: s.masteredCount,
+        count: s.mastered_count,
         color: "bg-success",
-        percentage: Math.round((s.masteredCount / s.totalProblems) * 100),
+        percentage: Math.round((s.mastered_count / s.total_problems) * 100),
       },
     ];
   };
@@ -143,7 +143,7 @@ const Analytics = () => {
           </div>
           <div class="stat-title">Total Problems</div>
           <div class="stat-value text-primary">
-            {stats()?.totalProblems || 0}
+            {stats()?.total_problems || 0}
           </div>
           <div class="stat-desc">Problems attempted</div>
         </div>
@@ -155,7 +155,7 @@ const Analytics = () => {
           <div class="stat-title">Mastery Rate</div>
           <div class="stat-value text-success">{masteryRate()}%</div>
           <div class="stat-desc">
-            {stats()?.masteredCount || 0} problems mastered
+            {stats()?.mastered_count || 0} problems mastered
           </div>
         </div>
 
@@ -165,7 +165,7 @@ const Analytics = () => {
           </div>
           <div class="stat-title">Due Today</div>
           <div class="stat-value text-warning">
-            {stats()?.reviewsDueToday || 0}
+            {stats()?.reviews_due_today || 0}
           </div>
           <div class="stat-desc">Ready for review</div>
         </div>
@@ -176,8 +176,8 @@ const Analytics = () => {
           </div>
           <div class="stat-title">In Progress</div>
           <div class="stat-value text-info">
-            {(stats()?.firstReviewCount || 0) +
-              (stats()?.secondReviewCount || 0)}
+            {(stats()?.first_review_count || 0) +
+              (stats()?.second_review_count || 0)}
           </div>
           <div class="stat-desc">Being reviewed</div>
         </div>
@@ -328,14 +328,14 @@ const Analytics = () => {
                       <td>
                         <div
                           class={`badge ${
-                            pattern.masteryPercentage >= 80
+                            pattern.mastery_percentage >= 80
                               ? "badge-success"
-                              : pattern.masteryPercentage >= 60
+                              : pattern.mastery_percentage >= 60
                                 ? "badge-warning"
                                 : "badge-error"
                           }`}
                         >
-                          {pattern.masteryPercentage}%
+                          {pattern.mastery_percentage}%
                         </div>
                       </td>
                       <td>
@@ -343,7 +343,7 @@ const Analytics = () => {
                           <div class="w-full bg-base-300 rounded-full h-2">
                             <div
                               class="h-2 rounded-full bg-primary"
-                              style={{ width: `${pattern.masteryPercentage}%` }}
+                              style={{ width: `${pattern.mastery_percentage}%` }}
                             ></div>
                           </div>
                         </div>
