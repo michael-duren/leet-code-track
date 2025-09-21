@@ -1,44 +1,52 @@
-import type { Problem, Difficulty, ProblemStatus } from '../types/Problem';
+import {
+  type Problem,
+  type Difficulty,
+  ProblemStatuses,
+} from "../types/Problem";
 
 // Date formatting utilities
 export const formatDate = (dateString: string | null | undefined): string => {
-  if (!dateString) return 'Not set';
-  
+  if (!dateString) return "Not set";
+
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   } catch {
-    return 'Invalid date';
+    return "Invalid date";
   }
 };
 
-export const formatRelativeTime = (dateString: string | null | undefined): string => {
-  if (!dateString) return 'Not set';
-  
+export const formatRelativeTime = (
+  dateString: string | null | undefined,
+): string => {
+  if (!dateString) return "Not set";
+
   try {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
     return `${Math.floor(diffDays / 365)} years ago`;
   } catch {
-    return 'Invalid date';
+    return "Invalid date";
   }
 };
 
-export const isDateInFuture = (dateString: string | null | undefined): boolean => {
+export const isDateInFuture = (
+  dateString: string | null | undefined,
+): boolean => {
   if (!dateString) return false;
-  
+
   try {
     const date = new Date(dateString);
     const now = new Date();
@@ -52,11 +60,11 @@ export const isDateInFuture = (dateString: string | null | undefined): boolean =
 
 export const isDateToday = (dateString: string | null | undefined): boolean => {
   if (!dateString) return false;
-  
+
   try {
     const date = new Date(dateString);
     const now = new Date();
-    
+
     return (
       date.getFullYear() === now.getFullYear() &&
       date.getMonth() === now.getMonth() &&
@@ -69,46 +77,45 @@ export const isDateToday = (dateString: string | null | undefined): boolean => {
 
 // Problem sorting utilities
 export const sortProblems = (
-  problems: Problem[], 
-  sortBy: string, 
-  sortOrder: 'asc' | 'desc'
+  problems: Problem[],
+  sortBy: string,
+  sortOrder: "asc" | "desc",
 ): Problem[] => {
   const sorted = [...problems].sort((a, b) => {
     let aValue: any;
     let bValue: any;
 
     switch (sortBy) {
-      case 'problem_number':
+      case "problem_number":
         aValue = a.problem_number;
         bValue = b.problem_number;
         break;
-      case 'title':
+      case "title":
         aValue = a.title.toLowerCase();
         bValue = b.title.toLowerCase();
         break;
-      case 'difficulty':
-        const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+      case "difficulty":
+        const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
         aValue = difficultyOrder[a.difficulty];
         bValue = difficultyOrder[b.difficulty];
         break;
-      case 'status':
-        const statusOrder = { 'New': 1, 'FirstReview': 2, 'SecondReview': 3, 'Mastered': 4 };
-        aValue = statusOrder[a.status];
-        bValue = statusOrder[b.status];
+      case "status":
+        aValue = a.status;
+        bValue = b.status;
         break;
-      case 'pattern':
+      case "pattern":
         aValue = a.pattern.toLowerCase();
         bValue = b.pattern.toLowerCase();
         break;
-      case 'date_attempted':
+      case "date_attempted":
       default:
         aValue = new Date(a.date_attempted).getTime();
         bValue = new Date(b.date_attempted).getTime();
         break;
     }
 
-    if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+    if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
     return 0;
   });
 
@@ -116,111 +123,118 @@ export const sortProblems = (
 };
 
 // Problem filtering utilities
-export const filterProblems = (
-  problems: Problem[],
-  filters: {
-    searchTerm?: string;
-    difficulty?: string;
-    status?: string;
-    pattern?: string;
-  }
-): Problem[] => {
-  return problems.filter(problem => {
-    // Search term filter
-    if (filters.searchTerm) {
-      const searchLower = filters.searchTerm.toLowerCase();
-      const matchesSearch = 
-        problem.title.toLowerCase().includes(searchLower) ||
-        problem.problem_number.toString().includes(searchLower) ||
-        problem.pattern.toLowerCase().includes(searchLower) ||
-        problem.notes.toLowerCase().includes(searchLower);
-      
-      if (!matchesSearch) return false;
-    }
-
-    // Difficulty filter
-    if (filters.difficulty && filters.difficulty !== 'all') {
-      if (problem.difficulty !== filters.difficulty) return false;
-    }
-
-    // Status filter
-    if (filters.status && filters.status !== 'all') {
-      if (problem.status !== filters.status) return false;
-    }
-
-    // Pattern filter
-    if (filters.pattern && filters.pattern !== 'all') {
-      if (problem.pattern !== filters.pattern) return false;
-    }
-
-    return true;
-  });
-};
+// TODO: Fix at some point
+// export const filterProblems = (
+//   problems: Problem[],
+//   filters: {
+//     searchTerm?: string;
+//     difficulty?: string;
+//     status?: string;
+//     pattern?: string;
+//   },
+// ): Problem[] => {
+//   return problems.filter((problem) => {
+//     // Search term filter
+//     if (filters.searchTerm) {
+//       const searchLower = filters.searchTerm.toLowerCase();
+//       const matchesSearch =
+//         problem.title.toLowerCase().includes(searchLower) ||
+//         problem.problem_number.toString().includes(searchLower) ||
+//         problem.pattern.toLowerCase().includes(searchLower) ||
+//         problem.notes.toLowerCase().includes(searchLower);
+//
+//       if (!matchesSearch) return false;
+//     }
+//
+//     // Difficulty filter
+//     if (filters.difficulty && filters.difficulty !== "all") {
+//       if (problem.difficulty !== filters.difficulty) return false;
+//     }
+//
+//     // Status filter
+//     if (filters.status && filters.status !== "all") {
+//       if (problem.status !== filters.status) return false;
+//     }
+//
+//     // Pattern filter
+//     if (filters.pattern && filters.pattern !== "all") {
+//       if (problem.pattern !== filters.pattern) return false;
+//     }
+//
+//     return true;
+//   });
+// };
 
 // Color and styling utilities
 export const getDifficultyColor = (difficulty: Difficulty): string => {
   switch (difficulty) {
-    case 'Easy':
-      return '#22c55e'; // green-500
-    case 'Medium':
-      return '#f59e0b'; // amber-500
-    case 'Hard':
-      return '#ef4444'; // red-500
+    case "Easy":
+      return "#22c55e"; // green-500
+    case "Medium":
+      return "#f59e0b"; // amber-500
+    case "Hard":
+      return "#ef4444"; // red-500
     default:
-      return '#6b7280'; // gray-500
+      return "#6b7280"; // gray-500
   }
 };
 
-export const getStatusColor = (status: ProblemStatus): string => {
+export const getStatusColor = (status: number): string => {
   switch (status) {
-    case 'New':
-      return '#3b82f6'; // blue-500
-    case 'FirstReview':
-      return '#f59e0b'; // amber-500
-    case 'SecondReview':
-      return '#f97316'; // orange-500
-    case 'Mastered':
-      return '#22c55e'; // green-500
+    case ProblemStatuses.New:
+      return "#3b82f6"; // blue-500
+    case ProblemStatuses.FirstReview:
+      return "#f59e0b"; // amber-500
+    case ProblemStatuses.SecondReview:
+      return "#f97316"; // orange-500
+    case ProblemStatuses.Mastered:
+      return "#22c55e"; // green-500
     default:
-      return '#6b7280'; // gray-500
+      return "#6b7280"; // gray-500
   }
 };
 
 // Validation utilities
 export const validateProblemNumber = (value: string): string | null => {
-  if (!value.trim()) return 'Problem number is required';
-  
+  if (!value.trim()) return "Problem number is required";
+
   const num = parseInt(value.trim());
-  if (isNaN(num) || num <= 0) return 'Problem number must be a positive integer';
-  if (num > 10000) return 'Problem number seems unusually high';
-  
+  if (isNaN(num) || num <= 0)
+    return "Problem number must be a positive integer";
+  if (num > 10000) return "Problem number seems unusually high";
+
   return null;
 };
 
 export const validateTitle = (value: string): string | null => {
-  if (!value.trim()) return 'Title is required';
-  if (value.trim().length < 3) return 'Title must be at least 3 characters long';
-  if (value.length > 200) return 'Title must be less than 200 characters';
-  
+  if (!value.trim()) return "Title is required";
+  if (value.trim().length < 3)
+    return "Title must be at least 3 characters long";
+  if (value.length > 200) return "Title must be less than 200 characters";
+
   return null;
 };
 
 export const validatePattern = (value: string): string | null => {
-  if (!value.trim()) return 'Pattern is required';
-  if (value.trim().length < 2) return 'Pattern must be at least 2 characters long';
-  if (value.length > 100) return 'Pattern must be less than 100 characters';
-  
+  if (!value.trim()) return "Pattern is required";
+  if (value.trim().length < 2)
+    return "Pattern must be at least 2 characters long";
+  if (value.length > 100) return "Pattern must be less than 100 characters";
+
   return null;
 };
 
 export const validateNotes = (value: string): string | null => {
-  if (value.length > 1000) return 'Notes must be less than 1000 characters';
-  
+  if (value.length > 1000) return "Notes must be less than 1000 characters";
+
   return null;
 };
 
 // Statistics utilities
-export const calculateMasteryRate = (totalProblems: number, masteredCount: number): number => {
+export const calculateMasteryRate = (
+  totalProblems: number,
+  masteredCount: number,
+): number => {
   if (totalProblems === 0) return 0;
   return Math.round((masteredCount / totalProblems) * 100);
 };
@@ -229,8 +243,12 @@ export const calculateStreak = (problems: Problem[]): number => {
   // This is a simplified streak calculation
   // In a real app, you'd want to track daily review activity
   const sortedProblems = problems
-    .filter(p => p.date_attempted)
-    .sort((a, b) => new Date(b.date_attempted).getTime() - new Date(a.date_attempted).getTime());
+    .filter((p) => p.date_attempted)
+    .sort(
+      (a, b) =>
+        new Date(b.date_attempted).getTime() -
+        new Date(a.date_attempted).getTime(),
+    );
 
   let streak = 0;
   let currentDate = new Date();
@@ -256,7 +274,7 @@ export const saveToLocalStorage = <T>(key: string, value: T): void => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
-    console.error('Failed to save to localStorage:', error);
+    console.error("Failed to save to localStorage:", error);
   }
 };
 
@@ -265,7 +283,7 @@ export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
   } catch (error) {
-    console.error('Failed to load from localStorage:', error);
+    console.error("Failed to load from localStorage:", error);
     return defaultValue;
   }
 };
@@ -274,17 +292,17 @@ export const removeFromLocalStorage = (key: string): void => {
   try {
     localStorage.removeItem(key);
   } catch (error) {
-    console.error('Failed to remove from localStorage:', error);
+    console.error("Failed to remove from localStorage:", error);
   }
 };
 
 // Debounce utility for search inputs
 export const debounce = <T extends (...args: any[]) => void>(
   func: T,
-  delay: number
+  delay: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeoutId: number;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
@@ -298,11 +316,11 @@ export const getLeetCodeUrl = (problemNumber: number): string => {
 
 // Export utilities
 export const downloadAsJSON = (data: any, filename: string): void => {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { 
-    type: 'application/json' 
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
   });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
@@ -310,3 +328,4 @@ export const downloadAsJSON = (data: any, filename: string): void => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+

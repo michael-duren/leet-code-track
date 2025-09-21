@@ -3,6 +3,7 @@ import { useApi } from "../api/agent";
 import { handleApiCall } from "../api/call-handler";
 import { useKeyedLoaders } from "../api/use-loaders";
 import Button from "../components/Button";
+import { ProblemStatuses, type Problem } from "../types/Problem";
 
 const Dashboard = () => {
   const api = useApi();
@@ -26,11 +27,23 @@ const Dashboard = () => {
         return "badge badge-ghost";
     }
   };
-  const handleMarkReviewed = async (problemId: number) => {
+  const handleMarkReviewed = async (problem: Problem) => {
     handleApiCall({
-      fn: () => api.Problems.updateForFirstReview(problemId),
+      fn: () => {
+        console.log("Marking problem as reviewed:", problem);
+        switch (problem.status) {
+          case ProblemStatuses.New:
+            return api.Problems.updateForFirstReview(problem.id);
+          case ProblemStatuses.FirstReview:
+            return api.Problems.updateForSecondReview(problem.id);
+          case ProblemStatuses.SecondReview:
+            return api.Problems.updateForMasterReview(problem.id);
+          default:
+            throw new Error("Problem is already mastered.");
+        }
+      },
       loadingSetter: (val: boolean) =>
-        setLoading("handleMarkReviewLoading", problemId, val),
+        setLoading("handleMarkReviewLoading", problem.id, val),
       action: "mark problem as reviewed",
     });
   };
@@ -210,7 +223,8 @@ const Dashboard = () => {
                             problem.id,
                           )}
                           style="btn btn-success btn-sm"
-                          onClick={() => handleMarkReviewed(problem.id)}
+                          onClick={() => handleMarkReviewed(problem)}
+                          disabled={problem.status === ProblemStatuses.Mastered}
                         >
                           ✅ Mark Reviewed
                         </Button>

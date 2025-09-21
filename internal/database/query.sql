@@ -108,7 +108,9 @@ WHERE id = ? AND status = 3;
 UPDATE problems 
 SET 
     first_review_date = CASE WHEN status = 2 THEN CURRENT_TIMESTAMP ELSE first_review_date END,
-    second_review_date = CASE WHEN status = 3 THEN CURRENT_TIMESTAMP ELSE second_review_date END
+    second_review_date = CASE WHEN status = 3 THEN CURRENT_TIMESTAMP ELSE second_review_date END,
+    final_review_date = CASE WHEN status = 4 THEN CURRENT_TIMESTAMP ELSE final_review_date END,
+    status = CASE WHEN status > 1 THEN status - 1 ELSE status END
 WHERE id = ?;
 
 -- 6. Get statistics
