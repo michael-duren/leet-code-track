@@ -170,6 +170,19 @@ export const getDifficultyLabel = (difficulty: number): string => {
   }
 };
 
+export const getDifficultyValue = (label: string): number => {
+  switch (label) {
+    case "Easy":
+      return 1;
+    case "Medium":
+      return 2;
+    case "Hard":
+      return 3;
+    default:
+      throw new Error("Invalid difficulty label");
+  }
+};
+
 // Problem filtering utilities
 // TODO: Fix at some point
 // export const filterProblems = (

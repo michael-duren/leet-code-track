@@ -38,7 +38,7 @@ export interface ProblemWithReviewInfo extends Problem {
 export interface CreateProblemRequest {
   problem_number: number;
   title: string;
-  difficulty: Difficulty;
+  difficulty: number;
   pattern?: string;
   notes?: string;
 }
