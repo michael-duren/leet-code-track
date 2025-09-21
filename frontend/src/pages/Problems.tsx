@@ -1,63 +1,47 @@
-import { createSignal, createResource, For } from 'solid-js';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-solid';
-import type { Problem } from '../types/Problem';
+import { createSignal, createResource, For } from "solid-js";
+import { Search, ChevronLeft, ChevronRight, Calendar } from "lucide-solid";
+import { useApi } from "../api/agent";
+import {
+  getDifficultyBadgeClass,
+  getDifficultyLabel,
+  getShorthandStatus,
+  getStatusBadgeClass,
+  getStatusLabel,
+} from "../utils/problems";
+import clsx from "clsx";
+import { handleApiCall } from "../api/call-handler";
+import { useKeyedLoaders } from "../api/use-loaders";
 
 const Problems = () => {
-  const [searchTerm, setSearchTerm] = createSignal('');
-  const [difficultyFilter, setDifficultyFilter] = createSignal('all');
-  const [statusFilter, setStatusFilter] = createSignal('all');
+  const [searchTerm, setSearchTerm] = createSignal("");
+  const [difficultyFilter, setDifficultyFilter] = createSignal("all");
+  const [statusFilter, setStatusFilter] = createSignal("all");
   const [currentPage, setCurrentPage] = createSignal(1);
   const pageSize = 10;
+  const api = useApi();
+  const loaderKeys = ["handleDeleteLoading"] as const;
+  const { setLoading, isLoading } = useKeyedLoaders(loaderKeys);
 
-  const [problems] = createResource<Problem[]>(async () => {
-    // TODO: Replace with actual API call
-    return [
-      {
-        id: 1,
-        problem_number: 1,
-        title: "Two Sum",
-        difficulty: "Easy" as const,
-        date_attempted: "2025-01-01",
-        status: "FirstReview" as const,
-        pattern: "Hash Table",
-        notes: "Classic two pointer approach",
-      },
-      {
-        id: 2,
-        problem_number: 15,
-        title: "3Sum",
-        difficulty: "Medium" as const,
-        date_attempted: "2025-01-02",
-        status: "New" as const,
-        pattern: "Two Pointers",
-        notes: "Remember to handle duplicates",
-      },
-      {
-        id: 3,
-        problem_number: 121,
-        title: "Best Time to Buy and Sell Stock",
-        difficulty: "Easy" as const,
-        date_attempted: "2025-01-03",
-        status: "Mastered" as const,
-        pattern: "Dynamic Programming",
-        notes: "Simple DP problem",
-      },
-    ];
-  });
+  const [problems, { mutate: mutateProblems }] = createResource(
+    api.Problems.list,
+  );
 
   const filteredProblems = () => {
     const allProblems = problems() || [];
-    return allProblems.filter(problem => {
-      const matchesSearch = !searchTerm() || 
+    return allProblems.filter((problem) => {
+      const matchesSearch =
+        !searchTerm() ||
         problem.title.toLowerCase().includes(searchTerm().toLowerCase()) ||
         problem.problem_number.toString().includes(searchTerm());
-      
-      const matchesDifficulty = difficultyFilter() === 'all' || 
-        problem.difficulty === difficultyFilter();
-      
-      const matchesStatus = statusFilter() === 'all' || 
-        problem.status === statusFilter();
-      
+
+      const matchesDifficulty =
+        difficultyFilter() === "all" ||
+        getDifficultyLabel(problem.difficulty) === difficultyFilter();
+
+      const matchesStatus =
+        statusFilter() === "all" ||
+        getStatusLabel(problem.status) === statusFilter();
+
       return matchesSearch && matchesDifficulty && matchesStatus;
     });
   };
@@ -71,40 +55,24 @@ const Problems = () => {
 
   const totalPages = () => Math.ceil(filteredProblems().length / pageSize);
 
-  const getDifficultyBadgeClass = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy':
-        return 'badge badge-success';
-      case 'Medium':
-        return 'badge badge-warning';
-      case 'Hard':
-        return 'badge badge-error';
-      default:
-        return 'badge badge-ghost';
-    }
-  };
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case 'New':
-        return 'badge badge-info';
-      case 'FirstReview':
-        return 'badge badge-warning';
-      case 'SecondReview':
-        return 'badge badge-accent';
-      case 'Mastered':
-        return 'badge badge-success';
-      default:
-        return 'badge badge-ghost';
-    }
-  };
-
   const clearFilters = () => {
-    setSearchTerm('');
-    setDifficultyFilter('all');
-    setStatusFilter('all');
+    setSearchTerm("");
+    setDifficultyFilter("all");
+    setStatusFilter("all");
     setCurrentPage(1);
   };
+
+  function handleDelete(id: number): void {
+    handleApiCall({
+      fn: () => api.Problems.delete(id),
+      loadingSetter: (loading: boolean) =>
+        setLoading("handleDeleteLoading", id, loading),
+      action: "delete problem",
+      resultProcessor: () => {
+        mutateProblems((probs) => probs?.filter((p) => p.id !== id) || []);
+      },
+    });
+  }
 
   return (
     <div class="space-y-6">
@@ -112,7 +80,8 @@ const Problems = () => {
         <div>
           <h1 class="text-3xl font-bold">All Problems</h1>
           <p class="text-base-content/70">
-            Showing {filteredProblems().length} of {problems()?.length || 0} problems
+            Showing {filteredProblems().length} of {problems()?.length || 0}{" "}
+            problems
           </p>
         </div>
       </div>
@@ -169,10 +138,7 @@ const Problems = () => {
             </div>
 
             {/* Clear Filters */}
-            <button
-              class="btn btn-ghost"
-              onClick={clearFilters}
-            >
+            <button class="btn btn-ghost" onClick={clearFilters}>
               Clear Filters
             </button>
           </div>
@@ -193,7 +159,9 @@ const Problems = () => {
             <div class="p-8 text-center">
               <div class="text-6xl mb-4">🔍</div>
               <h3 class="text-xl font-semibold mb-2">No problems found</h3>
-              <p class="text-base-content/70">Try adjusting your filters or search term.</p>
+              <p class="text-base-content/70">
+                Try adjusting your filters or search term.
+              </p>
             </div>
           )}
 
@@ -220,25 +188,49 @@ const Problems = () => {
                           <td class="font-mono">{problem.problem_number}</td>
                           <td class="font-semibold">{problem.title}</td>
                           <td>
-                            <div class={getDifficultyBadgeClass(problem.difficulty)}>
-                              {problem.difficulty}
+                            <div
+                              class={getDifficultyBadgeClass(
+                                problem.difficulty,
+                              )}
+                            >
+                              {getDifficultyLabel(problem.difficulty)}
                             </div>
                           </td>
                           <td>
-                            <div class={getStatusBadgeClass(problem.status)}>
-                              {problem.status}
+                            <div
+                              class={clsx(
+                                getStatusBadgeClass(problem.status),
+                                "text-xs badge-xl",
+                              )}
+                            >
+                              {getShorthandStatus(problem.status)}
                             </div>
                           </td>
                           <td>
-                            <div class="badge badge-outline">{problem.pattern}</div>
+                            <For each={problem.pattern.split(" ")}>
+                              {(p) => <kbd class="text-xs kbd">{p}</kbd>}
+                            </For>
                           </td>
                           <td>
-                            {new Date(problem.date_attempted).toLocaleDateString()}
+                            {new Date(
+                              problem.date_attempted,
+                            ).toLocaleDateString()}
                           </td>
                           <td>
                             <div class="flex gap-2">
-                              <button class="btn btn-xs btn-primary">Edit</button>
-                              <button class="btn btn-xs btn-error">Delete</button>
+                              <button class="btn btn-xs btn-primary">
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(problem.id)}
+                                class="btn btn-xs btn-error"
+                                disabled={isLoading(
+                                  "handleDeleteLoading",
+                                  problem.id,
+                                )}
+                              >
+                                Delete
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -256,10 +248,14 @@ const Problems = () => {
                       <div class="card-body p-4">
                         <div class="flex items-start justify-between mb-3">
                           <div class="flex items-center gap-2">
-                            <div class="badge badge-outline font-mono">#{problem.problem_number}</div>
+                            <div class="badge badge-outline font-mono">
+                              #{problem.problem_number}
+                            </div>
                             <h3 class="font-semibold">{problem.title}</h3>
                           </div>
-                          <div class={getDifficultyBadgeClass(problem.difficulty)}>
+                          <div
+                            class={getDifficultyBadgeClass(problem.difficulty)}
+                          >
                             {problem.difficulty}
                           </div>
                         </div>
@@ -267,10 +263,18 @@ const Problems = () => {
                           <div class={getStatusBadgeClass(problem.status)}>
                             {problem.status}
                           </div>
-                          <div class="badge badge-outline">{problem.pattern}</div>
+                          <div class="badge badge-outline">
+                            {problem.pattern}
+                          </div>
                         </div>
                         <div class="text-sm text-base-content/70 mb-3">
-                          Attempted: {new Date(problem.date_attempted).toLocaleDateString()}
+                          <span>
+                            <Calendar />
+                          </span>
+                          Attempted:{" "}
+                          {new Date(
+                            problem.date_attempted,
+                          ).toLocaleDateString()}
                         </div>
                         <div class="flex gap-2">
                           <button class="btn btn-xs btn-primary">Edit</button>
@@ -293,12 +297,17 @@ const Problems = () => {
                     <ChevronLeft size={16} />
                     Previous
                   </button>
-                  
+
                   <div class="join">
-                    <For each={Array.from({ length: totalPages() }, (_, i) => i + 1)}>
+                    <For
+                      each={Array.from(
+                        { length: totalPages() },
+                        (_, i) => i + 1,
+                      )}
+                    >
                       {(page) => (
                         <button
-                          class={`join-item btn btn-sm ${page === currentPage() ? 'btn-primary' : ''}`}
+                          class={`join-item btn btn-sm ${page === currentPage() ? "btn-primary" : ""}`}
                           onClick={() => setCurrentPage(page)}
                         >
                           {page}
@@ -306,7 +315,7 @@ const Problems = () => {
                       )}
                     </For>
                   </div>
-                  
+
                   <button
                     class="btn btn-sm"
                     disabled={currentPage() === totalPages()}
@@ -326,3 +335,4 @@ const Problems = () => {
 };
 
 export default Problems;
+

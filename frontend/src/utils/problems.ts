@@ -57,6 +57,36 @@ export const getStatusColor = (status: number): string => {
   }
 };
 
+export const getShorthandStatus = (status: number): string => {
+  switch (status) {
+    case ProblemStatuses.New:
+      return "New";
+    case ProblemStatuses.FirstReview:
+      return "First";
+    case ProblemStatuses.SecondReview:
+      return "Second";
+    case ProblemStatuses.Mastered:
+      return "Mastered";
+    default:
+      return "Unknown";
+  }
+};
+
+export const getStatusBadgeClass = (status: number) => {
+  switch (status) {
+    case ProblemStatuses.New:
+      return "badge badge-info";
+    case ProblemStatuses.FirstReview:
+      return "badge badge-warning";
+    case ProblemStatuses.SecondReview:
+      return "badge badge-accent";
+    case ProblemStatuses.Mastered:
+      return "badge badge-success";
+    default:
+      return "badge badge-ghost";
+  }
+};
+
 export const calculateNextReviewDate = (problem: Problem): Date | null => {
   const { status, date_attempted, first_review_date, second_review_date } =
     problem;
