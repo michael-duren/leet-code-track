@@ -19,23 +19,31 @@ export const handleApiCall = async ({
 }: ApiCall) => {
   try {
     loadingSetter(true);
+    console.log(`Starting to ${action}...`);
     const res = await fn();
     if (resultSetter) {
       resultSetter(res);
     }
 
+    console.log(`after to ${action}...`);
+
     if (resultProcessor) {
       resultProcessor(res);
     }
+
+    console.log(`after to processor...`);
     if (res && typeof res === "object" && "message" in res) {
       toast.success((res as { message: string }).message);
     } else {
       toast.success(`Successfully completed ${action}.`);
     }
+
+    console.log(`after to toast...`);
   } catch (error) {
     console.error(`Error during ${action}:`, error);
     toast.error(`Failed to ${action}. Please try again.`);
   } finally {
+    console.log(`in finally`);
     loadingSetter(false);
   }
 };

@@ -1,13 +1,16 @@
-import { createEffect, createResource, For } from "solid-js";
+import { createResource, For } from "solid-js";
 import { useApi } from "../api/agent";
 import { handleApiCall } from "../api/call-handler";
 import { useKeyedLoaders } from "../api/use-loaders";
 import Button from "../components/Button";
 import { ProblemStatuses, type Problem } from "../types/Problem";
+import { getDifficultyBadgeClass, getDifficultyLabel } from "../utils/problems";
 
 const Dashboard = () => {
   const api = useApi();
-  const [reviewProblems] = createResource(api.Problems.listProblemsToReview);
+  const [reviewProblems, { mutate: mutateReviewProblems }] = createResource(
+    api.Problems.listProblemsToReview,
+  );
   const [stats] = createResource(api.Problems.getStats);
   const loaderKeys = [
     "handleMarkReviewLoading",
@@ -15,22 +18,9 @@ const Dashboard = () => {
   ] as const;
   const { setLoading, isLoading } = useKeyedLoaders(loaderKeys);
 
-  const getDifficultyBadgeClass = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy":
-        return "badge badge-success";
-      case "Medium":
-        return "badge badge-warning";
-      case "Hard":
-        return "badge badge-error";
-      default:
-        return "badge badge-ghost";
-    }
-  };
   const handleMarkReviewed = async (problem: Problem) => {
     handleApiCall({
       fn: () => {
-        console.log("Marking problem as reviewed:", problem);
         switch (problem.status) {
           case ProblemStatuses.New:
             return api.Problems.updateForFirstReview(problem.id);
@@ -45,6 +35,17 @@ const Dashboard = () => {
       loadingSetter: (val: boolean) =>
         setLoading("handleMarkReviewLoading", problem.id, val),
       action: "mark problem as reviewed",
+      resultProcessor: () => {
+        mutateReviewProblems((p) => {
+          if (!p) return p;
+          return p.map((pr) => {
+            if (pr.id === problem.id && pr.status < ProblemStatuses.Mastered) {
+              return { ...pr, status: pr.status + 1 };
+            }
+            return pr;
+          });
+        });
+      },
     });
   };
 
@@ -54,15 +55,20 @@ const Dashboard = () => {
       loadingSetter: (val: boolean) =>
         setLoading("handleNeedsMoreReviewLoading", problemId, val),
       action: "reset review timer",
+      resultProcessor: () => {
+        mutateReviewProblems((p) => {
+          if (!p) return p;
+
+          return p.map((pr) => {
+            if (pr.id === problemId && pr.status > ProblemStatuses.New) {
+              return { ...pr, status: pr.status - 1 };
+            }
+            return pr;
+          });
+        });
+      },
     });
   };
-  createEffect(() => {
-    console.log("Review Problems:", reviewProblems());
-  });
-
-  createEffect(() => {
-    console.log("stats", stats());
-  });
 
   return (
     <div class="space-y-8">
@@ -72,7 +78,7 @@ const Dashboard = () => {
           <div class="max-w-md">
             <h1 class="text-5xl font-bold">Welcome Back!</h1>
             <p class="py-6">
-              You have {stats()?.reviews_due_today || 0} problems due for review
+              You have {reviewProblems()?.length || 0} problems due for review
               today. Keep up the great work! 🚀
             </p>
           </div>
@@ -152,7 +158,7 @@ const Dashboard = () => {
           </div>
           <div class="stat-title">Due Today</div>
           <div class="stat-value text-warning">
-            {stats()?.reviews_due_today || 0}
+            {reviewProblems()?.length || 0}
           </div>
           <div class="stat-desc">Ready for review</div>
         </div>
@@ -203,7 +209,7 @@ const Dashboard = () => {
                           <div
                             class={getDifficultyBadgeClass(problem.difficulty)}
                           >
-                            {problem.difficulty}
+                            {getDifficultyLabel(problem.difficulty)}
                           </div>
                         </div>
                         <div class="flex items-center gap-4 text-sm text-base-content/70">
@@ -230,11 +236,12 @@ const Dashboard = () => {
                         </Button>
                         <Button
                           loading={isLoading(
-                            "handleMarkReviewLoading",
+                            "handleNeedsMoreReviewLoading",
                             problem.id,
                           )}
                           style="btn-warning btn-sm"
                           onClick={() => handleNeedsMoreReview(problem.id)}
+                          disabled={problem.status === ProblemStatuses.New}
                         >
                           🔄 Need More Review
                         </Button>
