@@ -1,4 +1,4 @@
-import type { Component } from "solid-js";
+import { createEffect, onCleanup, type Component } from "solid-js";
 
 interface SearchTextInputProps {
   value: string;
@@ -6,6 +6,20 @@ interface SearchTextInputProps {
 }
 
 const SearchTextInput: Component<SearchTextInputProps> = (props) => {
+  let inputRef: HTMLInputElement;
+  createEffect(() => {
+    const downHandler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        inputRef!.focus();
+      }
+    };
+    document.addEventListener("keydown", downHandler);
+
+    onCleanup(() => {
+      document.removeEventListener("keydown", downHandler);
+    });
+  });
+
   return (
     <label class="input w-full">
       <svg
@@ -25,6 +39,7 @@ const SearchTextInput: Component<SearchTextInputProps> = (props) => {
         </g>
       </svg>
       <input
+        ref={inputRef!}
         value={props.value}
         onInput={(e) => props.onInput(e.target.value)}
         type="search"

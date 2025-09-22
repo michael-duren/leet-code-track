@@ -12,6 +12,9 @@ import {
 import type { CreateProblemRequest, Difficulty } from "../types/Problem";
 import { useApi } from "../api/agent";
 import TextInput from "../components/TextInput";
+import Button from "../components/Button";
+import Badge from "../components/Badge";
+import Card from "../components/Card";
 import { getDifficultyValue } from "../utils/problems";
 
 const AddProblem = () => {
@@ -133,8 +136,8 @@ const AddProblem = () => {
         </div>
       )}
 
-      <div class="card bg-base-100 shadow-xl">
-        <form class="card-body space-y-6" onSubmit={handleSubmit}>
+      <Card variant="base-100" shadow="xl">
+        <form class="space-y-6" onSubmit={handleSubmit}>
           {/* Problem Number */}
           <TextInput
             name="problem_number"
@@ -195,15 +198,13 @@ const AddProblem = () => {
                   {commonPatterns()!
                     .slice(0, 8)
                     .map((p) => (
-                      <button
-                        type="button"
-                        class={`badge badge-outline hover:badge-primary cursor-pointer transition-colors ${
-                          pattern() === p ? "badge-primary" : ""
-                        }`}
+                      <Badge
+                        variant={pattern() === p ? "primary" : "outline"}
+                        class="hover:badge-primary cursor-pointer transition-colors"
                         onClick={() => handlePatternClick(p)}
                       >
                         {p}
-                      </button>
+                      </Badge>
                     ))}
                 </div>
               </fieldset>
@@ -232,64 +233,54 @@ const AddProblem = () => {
 
           {/* Action Buttons */}
           <div class="card-actions justify-end pt-4">
-            <button
+            <Button
+              variant="ghost"
               type="button"
-              class="btn btn-ghost"
               onClick={clearForm}
               disabled={isSubmitting()}
             >
               Clear Form
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
               type="button"
-              class="btn btn-outline"
               onClick={() => navigate("/problems")}
               disabled={isSubmitting()}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               type="submit"
-              class="btn btn-primary"
+              loading={isSubmitting()}
               disabled={isSubmitting()}
             >
-              {isSubmitting() ? (
-                <>
-                  <span class="loading loading-spinner loading-sm"></span>
-                  Adding...
-                </>
-              ) : (
-                <>
-                  <Plus size={16} />
-                  Add Problem
-                </>
-              )}
-            </button>
+              {!isSubmitting() && <Plus size={16} />}
+              {isSubmitting() ? "Adding..." : "Add Problem"}
+            </Button>
           </div>
         </form>
-      </div>
+      </Card>
 
       {/* Quick Tips */}
-      <div class="card bg-base-200">
-        <div class="card-body">
-          <h3 class="card-title text-lg">💡 Quick Tips</h3>
-          <ul class="list-disc list-inside space-y-1 text-sm">
-            <li>
-              Use specific problem numbers from LeetCode for easy reference
-            </li>
-            <li>
-              Choose patterns that help you categorize and recall solutions
-            </li>
-            <li>
-              Add notes about your approach, time complexity, or mistakes made
-            </li>
-            <li>
-              The system will automatically schedule reviews using spaced
-              repetition
-            </li>
-          </ul>
-        </div>
-      </div>
+      <Card variant="base-200">
+        <h3 class="card-title text-lg">💡 Quick Tips</h3>
+        <ul class="list-disc list-inside space-y-1 text-sm">
+          <li>
+            Use specific problem numbers from LeetCode for easy reference
+          </li>
+          <li>
+            Choose patterns that help you categorize and recall solutions
+          </li>
+          <li>
+            Add notes about your approach, time complexity, or mistakes made
+          </li>
+          <li>
+            The system will automatically schedule reviews using spaced
+            repetition
+          </li>
+        </ul>
+      </Card>
     </div>
   );
 };

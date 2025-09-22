@@ -16,6 +16,7 @@ interface SelectProps {
   type?: string;
   includeEmptyOption?: boolean;
   onInput: (val: string) => void;
+  hideLabel?: boolean;
 }
 
 const Select: Component<SelectProps> = (props) => {
@@ -26,15 +27,23 @@ const Select: Component<SelectProps> = (props) => {
   };
   return (
     <fieldset class="fieldset w-full">
-      <legend class="fieldset-legend">
-        <label for={props.name}>
-          <span class="label-text font-semibold flex items-center gap-2">
-            <Icon size={16} />
-            {props.label}
-          </span>
-        </label>
-      </legend>
-      <select id={props.name} name={props.name} class="select w-full">
+      <Show when={!props.hideLabel}>
+        <legend class="fieldset-legend">
+          <label for={props.name}>
+            <span class="label-text font-semibold flex items-center gap-2">
+              <Icon size={16} />
+              {props.label}
+            </span>
+          </label>
+        </legend>
+      </Show>
+      <select
+        value={props.value}
+        id={props.name}
+        name={props.name}
+        class="select w-full"
+        onInput={(e) => props.onInput((e.target as HTMLSelectElement).value)}
+      >
         <Show when={props.includeEmptyOption}>
           <option value="">Select an option</option>
         </Show>

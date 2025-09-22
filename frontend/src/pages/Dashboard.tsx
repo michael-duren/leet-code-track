@@ -3,6 +3,8 @@ import { useApi } from "../api/agent";
 import { handleApiCall } from "../api/call-handler";
 import { useKeyedLoaders } from "../api/use-loaders";
 import Button from "../components/Button";
+import Badge from "../components/Badge";
+import Card from "../components/Card";
 import { ProblemStatuses, type Problem } from "../types/Problem";
 import { getDifficultyBadgeClass, getDifficultyLabel } from "../utils/problems";
 
@@ -73,7 +75,7 @@ const Dashboard = () => {
   return (
     <div class="space-y-8">
       {/* Hero Section */}
-      <div class="hero bg-base-200 rounded-lg">
+      <Card variant="base-200" class="hero rounded-lg">
         <div class="hero-content text-center">
           <div class="max-w-md">
             <h1 class="text-5xl font-bold">Welcome Back!</h1>
@@ -83,7 +85,7 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Quick Stats */}
       <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
@@ -165,21 +167,20 @@ const Dashboard = () => {
       </div>
 
       {/* Review Queue */}
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl mb-4">
-            Today's Review Queue
-            <div class="badge badge-secondary">
-              {reviewProblems()?.length || 0}
-            </div>
-          </h2>
+      <Card variant="base-100" shadow="xl">
+        <h2 class="card-title text-2xl mb-4">
+          Today's Review Queue
+          <Badge variant="secondary">
+            {reviewProblems()?.length || 0}
+          </Badge>
+        </h2>
 
           {reviewProblems.loading && (
             <div class="space-y-4">
               {[1, 2, 3].map(() => (
-                <div class="card bg-base-200 animate-pulse">
-                  <div class="card-body h-32"></div>
-                </div>
+                <Card variant="base-200" class="animate-pulse">
+                  <div class="h-32"></div>
+                </Card>
               ))}
             </div>
           )}
@@ -197,63 +198,60 @@ const Dashboard = () => {
           <div class="grid gap-4">
             <For each={reviewProblems()}>
               {(problem) => (
-                <div class="card bg-base-200 shadow-md">
-                  <div class="card-body">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                          <div class="badge badge-outline font-mono text-sm">
-                            #{problem.problem_number}
-                          </div>
-                          <h3 class="font-semibold text-lg">{problem.title}</h3>
-                          <div
-                            class={getDifficultyBadgeClass(problem.difficulty)}
-                          >
-                            {getDifficultyLabel(problem.difficulty)}
-                          </div>
+                <Card variant="base-200" shadow="md">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-3 mb-2">
+                        <Badge variant="outline" class="font-mono text-sm">
+                          #{problem.problem_number}
+                        </Badge>
+                        <h3 class="font-semibold text-lg">{problem.title}</h3>
+                        <Badge class={getDifficultyBadgeClass(problem.difficulty)}>
+                          {getDifficultyLabel(problem.difficulty)}
+                        </Badge>
+                      </div>
+                      <div class="flex items-center gap-4 text-sm text-base-content/70">
+                        <Badge variant="ghost">{problem.pattern}</Badge>
+                        <span>Status: {problem.status}</span>
+                      </div>
+                      {problem.notes && (
+                        <div class="mt-2 text-sm bg-base-300 p-3 rounded">
+                          <strong>Notes:</strong> {problem.notes}
                         </div>
-                        <div class="flex items-center gap-4 text-sm text-base-content/70">
-                          <div class="badge badge-ghost">{problem.pattern}</div>
-                          <span>Status: {problem.status}</span>
-                        </div>
-                        {problem.notes && (
-                          <div class="mt-2 text-sm bg-base-300 p-3 rounded">
-                            <strong>Notes:</strong> {problem.notes}
-                          </div>
+                      )}
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        variant="success"
+                        size="sm"
+                        loading={isLoading(
+                          "handleMarkReviewLoading",
+                          problem.id,
                         )}
-                      </div>
-                      <div class="flex flex-col sm:flex-row gap-2">
-                        <Button
-                          loading={isLoading(
-                            "handleMarkReviewLoading",
-                            problem.id,
-                          )}
-                          style="btn btn-success btn-sm"
-                          onClick={() => handleMarkReviewed(problem)}
-                          disabled={problem.status === ProblemStatuses.Mastered}
-                        >
-                          ✅ Mark Reviewed
-                        </Button>
-                        <Button
-                          loading={isLoading(
-                            "handleNeedsMoreReviewLoading",
-                            problem.id,
-                          )}
-                          style="btn-warning btn-sm"
-                          onClick={() => handleNeedsMoreReview(problem.id)}
-                          disabled={problem.status === ProblemStatuses.New}
-                        >
-                          🔄 Need More Review
-                        </Button>
-                      </div>
+                        onClick={() => handleMarkReviewed(problem)}
+                        disabled={problem.status === ProblemStatuses.Mastered}
+                      >
+                        ✅ Mark Reviewed
+                      </Button>
+                      <Button
+                        variant="warning"
+                        size="sm"
+                        loading={isLoading(
+                          "handleNeedsMoreReviewLoading",
+                          problem.id,
+                        )}
+                        onClick={() => handleNeedsMoreReview(problem.id)}
+                        disabled={problem.status === ProblemStatuses.New}
+                      >
+                        🔄 Need More Review
+                      </Button>
                     </div>
                   </div>
-                </div>
+                </Card>
               )}
             </For>
           </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 };

@@ -1,6 +1,9 @@
 import { createSignal, createResource, For } from "solid-js";
 import { ChartColumn, TrendingUp, Target, Calendar } from "lucide-solid";
 import type { ProblemStats, PatternStats } from "../types/Problem";
+import Badge from "../components/Badge";
+import Card from "../components/Card";
+import Select from "../components/Select";
 
 const Analytics = () => {
   const [timeFilter, setTimeFilter] = createSignal("30");
@@ -121,18 +124,19 @@ const Analytics = () => {
           </p>
         </div>
 
-        <div class="form-control">
-          <select
-            class="select select-bordered"
-            value={timeFilter()}
-            onChange={(e) => setTimeFilter(e.target.value)}
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="all">All time</option>
-          </select>
-        </div>
+        <Select
+          value={timeFilter()}
+          onInput={(v) => setTimeFilter(v)}
+          label=""
+          name="timeFilter"
+          errors={{}}
+          options={[
+            { value: "7", label: "Last 7 days" },
+            { value: "30", label: "Last 30 days" },
+            { value: "90", label: "Last 90 days" },
+            { value: "all", label: "All time" },
+          ]}
+        />
       </div>
 
       {/* Key Metrics */}
@@ -185,9 +189,8 @@ const Analytics = () => {
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Difficulty Breakdown */}
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title">Difficulty Breakdown</h2>
+        <Card variant="base-100" shadow="xl">
+          <h2 class="card-title">Difficulty Breakdown</h2>
             <div class="space-y-4">
               <For each={getDifficultyBreakdown()}>
                 {(item) => (
@@ -214,13 +217,11 @@ const Analytics = () => {
                 )}
               </For>
             </div>
-          </div>
-        </div>
+        </Card>
 
         {/* Status Progress */}
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title">Review Progress</h2>
+        <Card variant="base-100" shadow="xl">
+          <h2 class="card-title">Review Progress</h2>
             <div class="space-y-4">
               <For each={getStatusBreakdown()}>
                 {(item) => (
@@ -242,14 +243,12 @@ const Analytics = () => {
                 )}
               </For>
             </div>
-          </div>
-        </div>
+        </Card>
       </div>
 
       {/* Weekly Progress Chart */}
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title mb-6">Weekly Review Activity</h2>
+      <Card variant="base-100" shadow="xl">
+        <h2 class="card-title mb-6">Weekly Review Activity</h2>
           {weeklyProgress() && (
             <div class="grid grid-cols-7 gap-2 h-48">
               <For each={weeklyProgress()!.labels}>
@@ -298,13 +297,11 @@ const Analytics = () => {
               <span class="text-sm">Scheduled</span>
             </div>
           </div>
-        </div>
-      </div>
+      </Card>
 
       {/* Pattern Analysis */}
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title mb-6">Pattern Mastery Analysis</h2>
+      <Card variant="base-100" shadow="xl">
+        <h2 class="card-title mb-6">Pattern Mastery Analysis</h2>
           <div class="overflow-x-auto">
             <table class="table table-zebra">
               <thead>
@@ -326,17 +323,17 @@ const Analytics = () => {
                         {pattern.mastered}
                       </td>
                       <td>
-                        <div
-                          class={`badge ${
+                        <Badge
+                          variant={
                             pattern.mastery_percentage >= 80
-                              ? "badge-success"
+                              ? "success"
                               : pattern.mastery_percentage >= 60
-                                ? "badge-warning"
-                                : "badge-error"
-                          }`}
+                                ? "warning"
+                                : "error"
+                          }
                         >
                           {pattern.mastery_percentage}%
-                        </div>
+                        </Badge>
                       </td>
                       <td>
                         <div class="w-24">
@@ -354,13 +351,11 @@ const Analytics = () => {
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
+      </Card>
 
       {/* Insights */}
-      <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl">📊 Insights & Recommendations</h2>
+      <Card variant="primary" shadow="xl" class="bg-gradient-to-r from-primary to-secondary text-primary-content">
+        <h2 class="card-title text-2xl">📊 Insights & Recommendations</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div class="bg-black/20 rounded p-4">
               <h3 class="font-bold mb-2">Strongest Areas</h3>
@@ -376,8 +371,7 @@ const Analytics = () => {
               </p>
             </div>
           </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 };
