@@ -2,7 +2,14 @@ import { clsx } from "clsx";
 import { Show, splitProps, type JSX, type ParentComponent } from "solid-js";
 
 interface ButtonProps extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "error" | "outline" | "success";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "error"
+    | "outline"
+    | "success"
+    | "warning";
   size?: "xs" | "sm" | "md" | "lg";
   loading?: boolean;
   style?: string;
@@ -33,6 +40,8 @@ const Button: ParentComponent<ButtonProps> = (props) => {
         return "btn-outline";
       case "success":
         return "btn-success";
+      case "warning":
+        return "btn-warning";
       default:
         return "";
     }
@@ -55,7 +64,7 @@ const Button: ParentComponent<ButtonProps> = (props) => {
     <button
       {...buttonProps}
       class={clsx(
-        "btn w-full",
+        "btn",
         getVariantClass(),
         getSizeClass(),
         local.loading && "loading",

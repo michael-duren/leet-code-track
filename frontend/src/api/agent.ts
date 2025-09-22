@@ -2,6 +2,7 @@ import type {
   Problem,
   CreateProblemRequest,
   ProblemStats,
+  UpdateProblemRequest,
 } from "../types/Problem";
 import { useRequests } from "./base";
 
@@ -29,6 +30,11 @@ export const useApi = () => {
         ),
       create: (data: CreateProblemRequest) =>
         requests.post<CreateProblemRequest, { id: number }>("/problems", data),
+      update: (data: UpdateProblemRequest) =>
+        requests.put<UpdateProblemRequest, Problem>(
+          `/problems/${data.id}`,
+          data,
+        ),
       updateForFirstReview: (id: number) =>
         requests.put<{}, ResponseMessage>(`/problems/${id}/first-review`, {}),
       updateForSecondReview: (id: number) =>

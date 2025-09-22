@@ -3,7 +3,6 @@ import { A } from "@solidjs/router";
 import {
   House,
   List,
-  Plus,
   ChartNoAxesColumnDecreasing,
   Settings,
   Menu,
@@ -52,8 +51,7 @@ const Layout = (props: LayoutProps) => {
 
   const navItems = [
     { path: "/", label: "Dashboard", icon: House },
-    { path: "/problems", label: "All Problems", icon: List },
-    { path: "/add", label: "Add Problem", icon: Plus },
+    { path: "/problems", label: "Problems", icon: List },
     {
       path: "/analytics",
       label: "Analytics",

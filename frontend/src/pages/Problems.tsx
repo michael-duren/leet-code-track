@@ -1,5 +1,6 @@
 import { createSignal, createResource, For } from "solid-js";
 import { Calendar } from "lucide-solid";
+import { useNavigate } from "@solidjs/router";
 import { useApi } from "../api/agent";
 import {
   getDifficultyBadgeClass,
@@ -21,6 +22,7 @@ import Card from "../components/Card";
 import Pagination from "../components/Pagination";
 
 const Problems = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = createSignal("");
   const [difficultyFilter, setDifficultyFilter] = createSignal("all");
   const [statusFilter, setStatusFilter] = createSignal("all");
@@ -81,6 +83,14 @@ const Problems = () => {
       },
     });
   }
+
+  const handleViewProblem = (id: number) => {
+    navigate(`/problem/${id}`);
+  };
+
+  const handleEditProblem = (id: number) => {
+    navigate(`/problem/${id}?mode=edit`);
+  };
 
   return (
     <div class="flex flex-col gap-8">
@@ -172,8 +182,11 @@ const Problems = () => {
                   {
                     key: "title",
                     label: "Title",
-                    render: ({ title }) => (
-                      <td class="font-semibold hover:underline cursor-pointer">
+                    render: ({ title, id }) => (
+                      <td
+                        class="font-semibold hover:underline cursor-pointer"
+                        onClick={() => handleViewProblem(id)}
+                      >
                         {title}
                       </td>
                     ),
@@ -218,7 +231,11 @@ const Problems = () => {
                 ]}
                 actions={(problem) => (
                   <div class="flex flex-col gap-2">
-                    <Button variant="primary" size="xs">
+                    <Button
+                      variant="primary"
+                      size="xs"
+                      onClick={() => handleEditProblem(problem.id)}
+                    >
                       Edit
                     </Button>
                     <Button
@@ -244,7 +261,12 @@ const Problems = () => {
                         <Badge variant="outline" class="font-mono">
                           #{problem.problem_number}
                         </Badge>
-                        <h3 class="font-semibold">{problem.title}</h3>
+                        <h3
+                          class="font-semibold hover:underline cursor-pointer"
+                          onClick={() => handleViewProblem(problem.id)}
+                        >
+                          {problem.title}
+                        </h3>
                       </div>
                       <Badge
                         class={getDifficultyBadgeClass(problem.difficulty)}
@@ -266,7 +288,11 @@ const Problems = () => {
                       {new Date(problem.date_attempted).toLocaleDateString()}
                     </div>
                     <div class="flex gap-2">
-                      <Button variant="primary" size="xs">
+                      <Button
+                        variant="primary"
+                        size="xs"
+                        onClick={() => handleEditProblem(problem.id)}
+                      >
                         Edit
                       </Button>
                       <Button

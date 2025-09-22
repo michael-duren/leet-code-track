@@ -1,18 +1,17 @@
-import { createResource, For } from "solid-js";
+import { createResource } from "solid-js";
 import { useApi } from "../api/agent";
 import { handleApiCall } from "../api/call-handler";
 import { useKeyedLoaders } from "../api/use-loaders";
-import Button from "../components/Button";
-import Badge from "../components/Badge";
 import Card from "../components/Card";
 import { ProblemStatuses, type Problem } from "../types/Problem";
-import { getDifficultyBadgeClass, getDifficultyLabel } from "../utils/problems";
+import ProblemCardList from "../components/ProblemCardList";
 
 const Dashboard = () => {
   const api = useApi();
-  const [reviewProblems, { mutate: mutateReviewProblems }] = createResource(
-    api.Problems.listProblemsToReview,
+  const [todaysProblems, { mutate: mutateReviewProblems }] = createResource(
+    api.Problems.listToday,
   );
+  const [upcomingProblems] = createResource(api.Problems.listProblemsToReview);
   const [stats] = createResource(api.Problems.getStats);
   const loaderKeys = [
     "handleMarkReviewLoading",
@@ -40,12 +39,17 @@ const Dashboard = () => {
       resultProcessor: () => {
         mutateReviewProblems((p) => {
           if (!p) return p;
-          return p.map((pr) => {
-            if (pr.id === problem.id && pr.status < ProblemStatuses.Mastered) {
-              return { ...pr, status: pr.status + 1 };
-            }
-            return pr;
-          });
+          return p
+            .map((pr) => {
+              if (
+                pr.id === problem.id &&
+                pr.status < ProblemStatuses.Mastered
+              ) {
+                return { ...pr, status: pr.status + 1 };
+              }
+              return pr;
+            })
+            .filter((pr) => pr.status < ProblemStatuses.Mastered);
         });
       },
     });
@@ -80,7 +84,7 @@ const Dashboard = () => {
           <div class="max-w-md">
             <h1 class="text-5xl font-bold">Welcome Back!</h1>
             <p class="py-6">
-              You have {reviewProblems()?.length || 0} problems due for review
+              You have {todaysProblems()?.length || 0} problems due for review
               today. Keep up the great work! 🚀
             </p>
           </div>
@@ -160,98 +164,26 @@ const Dashboard = () => {
           </div>
           <div class="stat-title">Due Today</div>
           <div class="stat-value text-warning">
-            {reviewProblems()?.length || 0}
+            {todaysProblems()?.length || 0}
           </div>
           <div class="stat-desc">Ready for review</div>
         </div>
       </div>
 
-      {/* Review Queue */}
-      <Card variant="base-100" shadow="xl">
-        <h2 class="card-title text-2xl mb-4">
-          Today's Review Queue
-          <Badge variant="secondary">
-            {reviewProblems()?.length || 0}
-          </Badge>
-        </h2>
-
-          {reviewProblems.loading && (
-            <div class="space-y-4">
-              {[1, 2, 3].map(() => (
-                <Card variant="base-200" class="animate-pulse">
-                  <div class="h-32"></div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {reviewProblems() && reviewProblems()!.length === 0 && (
-            <div class="text-center py-8">
-              <div class="text-6xl mb-4">🎉</div>
-              <h3 class="text-xl font-semibold mb-2">All caught up!</h3>
-              <p class="text-base-content/70">
-                No problems due for review today. Great job!
-              </p>
-            </div>
-          )}
-
-          <div class="grid gap-4">
-            <For each={reviewProblems()}>
-              {(problem) => (
-                <Card variant="base-200" shadow="md">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex-1">
-                      <div class="flex items-center gap-3 mb-2">
-                        <Badge variant="outline" class="font-mono text-sm">
-                          #{problem.problem_number}
-                        </Badge>
-                        <h3 class="font-semibold text-lg">{problem.title}</h3>
-                        <Badge class={getDifficultyBadgeClass(problem.difficulty)}>
-                          {getDifficultyLabel(problem.difficulty)}
-                        </Badge>
-                      </div>
-                      <div class="flex items-center gap-4 text-sm text-base-content/70">
-                        <Badge variant="ghost">{problem.pattern}</Badge>
-                        <span>Status: {problem.status}</span>
-                      </div>
-                      {problem.notes && (
-                        <div class="mt-2 text-sm bg-base-300 p-3 rounded">
-                          <strong>Notes:</strong> {problem.notes}
-                        </div>
-                      )}
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                      <Button
-                        variant="success"
-                        size="sm"
-                        loading={isLoading(
-                          "handleMarkReviewLoading",
-                          problem.id,
-                        )}
-                        onClick={() => handleMarkReviewed(problem)}
-                        disabled={problem.status === ProblemStatuses.Mastered}
-                      >
-                        ✅ Mark Reviewed
-                      </Button>
-                      <Button
-                        variant="warning"
-                        size="sm"
-                        loading={isLoading(
-                          "handleNeedsMoreReviewLoading",
-                          problem.id,
-                        )}
-                        onClick={() => handleNeedsMoreReview(problem.id)}
-                        disabled={problem.status === ProblemStatuses.New}
-                      >
-                        🔄 Need More Review
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              )}
-            </For>
-          </div>
-      </Card>
+      <ProblemCardList
+        problems={todaysProblems() || []}
+        isLoading={isLoading}
+        handleMarkReviewed={handleMarkReviewed}
+        handleNeedsMoreReview={handleNeedsMoreReview}
+        title={"Today's Review Queue"}
+      />
+      <ProblemCardList
+        problems={upcomingProblems() || []}
+        isLoading={isLoading}
+        handleMarkReviewed={handleMarkReviewed}
+        handleNeedsMoreReview={handleNeedsMoreReview}
+        title={"Upcoming Reviews"}
+      />
     </div>
   );
 };
