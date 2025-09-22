@@ -1,35 +1,11 @@
-import type { ProblemCardProps } from "../types/Problem";
+import { ProblemStatuses, type ProblemCardProps } from "../types/Problem";
 import { Calendar, PenLine, EllipsisVertical } from "lucide-solid";
+import {
+  getDifficultyBadgeClass,
+  getStatusBadgeClass,
+} from "../utils/problems";
 
 const ProblemCard = (props: ProblemCardProps) => {
-  const getDifficultyBadgeClass = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy":
-        return "badge badge-success";
-      case "Medium":
-        return "badge badge-warning";
-      case "Hard":
-        return "badge badge-error";
-      default:
-        return "badge badge-ghost";
-    }
-  };
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "New":
-        return "badge badge-info";
-      case "FirstReview":
-        return "badge badge-warning";
-      case "SecondReview":
-        return "badge badge-accent";
-      case "Mastered":
-        return "badge badge-success";
-      default:
-        return "badge badge-ghost";
-    }
-  };
-
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "Not scheduled";
     return new Date(dateString).toLocaleDateString();
@@ -114,7 +90,7 @@ const ProblemCard = (props: ProblemCardProps) => {
 
         {/* Action Buttons */}
         <div class="card-actions justify-end">
-          {props.problem.status !== "Mastered" && (
+          {props.problem.status !== ProblemStatuses.Mastered && (
             <>
               <button
                 class="btn btn-success btn-sm"
@@ -130,7 +106,7 @@ const ProblemCard = (props: ProblemCardProps) => {
               </button>
             </>
           )}
-          {props.problem.status === "Mastered" && (
+          {props.problem.status === ProblemStatuses.Mastered && (
             <div class="btn btn-success btn-sm cursor-not-allowed opacity-50">
               🏆 Mastered
             </div>
@@ -142,4 +118,3 @@ const ProblemCard = (props: ProblemCardProps) => {
 };
 
 export default ProblemCard;
-

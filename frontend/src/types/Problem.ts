@@ -60,6 +60,7 @@ export interface ProblemStats {
   easy_count: number;
   medium_count: number;
   hard_count: number;
+  reviews_due_today: number;
 }
 
 export interface PatternStats {

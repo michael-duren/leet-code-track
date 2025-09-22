@@ -108,7 +108,16 @@ SELECT
     COUNT(CASE WHEN status = 3 THEN 1 END) as second_review_count,
     COUNT(CASE WHEN difficulty = 1 THEN 1 END) as easy_count,
     COUNT(CASE WHEN difficulty = 2 THEN 1 END) as medium_count,
-    COUNT(CASE WHEN difficulty = 3 THEN 1 END) as hard_count
+    COUNT(CASE WHEN difficulty = 3 THEN 1 END) as hard_count,
+    (SELECT 
+      COUNT(*)
+    FROM problems 
+    WHERE status < 4  
+    AND (
+        (status = 1 AND date(date_attempted, '+3 days') <= date('now')) OR
+        (status = 2 AND date(first_review_date, '+7 days') <= date('now')) OR
+        (status = 3 AND date(second_review_date, '+20 days') <= date('now'))
+    )) as reviews_due_today
 FROM problems
 `
 
@@ -121,6 +130,7 @@ type GetProblemStatisticsRow struct {
 	EasyCount         int64 `json:"easy_count"`
 	MediumCount       int64 `json:"medium_count"`
 	HardCount         int64 `json:"hard_count"`
+	ReviewsDueToday   int64 `json:"reviews_due_today"`
 }
 
 // 6. Get statistics
@@ -136,6 +146,7 @@ func (q *Queries) GetProblemStatistics(ctx context.Context) (GetProblemStatistic
 		&i.EasyCount,
 		&i.MediumCount,
 		&i.HardCount,
+		&i.ReviewsDueToday,
 	)
 	return i, err
 }

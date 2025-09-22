@@ -10,7 +10,7 @@ const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 // set in top level .env
-const USE_API_TEST_DELAY = import.meta.env.USE_API_TEST_DELAY;
+// const USE_API_TEST_DELAY = import.meta.env.USE_API_TEST_DELAY;
 const API_TEST_DELAY = import.meta.env.API_TEST_DELAY;
 
 export class HttpError extends Error {

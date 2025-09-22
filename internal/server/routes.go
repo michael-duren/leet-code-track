@@ -1,9 +1,13 @@
 package server
 
 import (
+	"embed"
 	"encoding/json"
+	"io/fs"
 	"log"
+	"mime"
 	"net/http"
+	"path/filepath"
 
 	"leet-code-track/internal/handlers"
 
@@ -16,6 +20,9 @@ var h *handlers.Handlers
 
 func init() {
 	h = handlers.NewHandlers()
+	mime.AddExtensionType(".css", "text/css")
+	mime.AddExtensionType(".js", "application/javascript")
+	mime.AddExtensionType(".json", "application/json")
 }
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -46,22 +53,36 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Put("/problems/{id}/notes", h.ProblemHandlers.UpdateProblemNotes)
 		r.Delete("/problems/{id}", h.ProblemHandlers.DeleteProblem)
 	})
-	r.Get("/", s.HelloWorldHandler)
 	r.Get("/health", s.healthHandler)
+
+	r.Handle("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set MIME type before serving
+		ext := filepath.Ext(r.URL.Path)
+		switch ext {
+		case ".css":
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		case ".js":
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		case ".html":
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		}
+
+		http.FileServer(BuildHTTPFS()).ServeHTTP(w, r)
+	}))
 
 	return r
 }
 
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
+//go:embed dist/*
+//go:embed dist/assets/*
+var BuildFs embed.FS
 
-	jsonResp, err := json.Marshal(resp)
+func BuildHTTPFS() http.FileSystem {
+	build, err := fs.Sub(BuildFs, "dist")
 	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
+		log.Fatal(err)
 	}
-
-	_, _ = w.Write(jsonResp)
+	return http.FS(build)
 }
 
 func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
