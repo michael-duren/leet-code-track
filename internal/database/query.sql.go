@@ -208,13 +208,13 @@ SELECT
         ELSE NULL
     END as next_review_date,
     CASE 
-        WHEN status = 4 THEN 'Mastered'
         WHEN status = 1 AND date(date_attempted, '+3 days') <= date('now') THEN 'Due'
         WHEN status = 2 AND date(first_review_date, '+7 days') <= date('now') THEN 'Due'
         WHEN status = 3 AND date(second_review_date, '+20 days') <= date('now') THEN 'Due'
         ELSE 'Scheduled'
     END as review_status
 FROM problems 
+WHERE status < 4 
 ORDER BY date_attempted DESC
 `
 

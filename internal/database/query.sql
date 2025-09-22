@@ -1,23 +1,23 @@
+-- PROBLEMS TABLE QUERIES
 -- name: ListProblems :many
 SELECT 
-    id,
-    problem_number,
-    title,
-    difficulty,
-    date_attempted,
-    first_review_date,
-    second_review_date,
-    final_review_date,
-    status,
-    pattern,
-    notes,
+    p.id,
+    p.problem_number,
+    p.title,
+    p.difficulty,
+    p.date_attempted,
+    p.first_review_date,
+    p.second_review_date,
+    p.final_review_date,
+    p.status,
+    p.pattern,
     CASE 
         WHEN status = 1 THEN date(date_attempted, '+3 days')
         WHEN status = 2 THEN date(first_review_date, '+7 days')
         WHEN status = 3 THEN date(second_review_date, '+20 days')
         ELSE NULL
     END as next_review_date
-FROM problems 
+FROM problems as P
 ORDER BY date_attempted ASC;
 
 -- 1. Get all problems that need review today
@@ -32,8 +32,7 @@ SELECT
     second_review_date,
     final_review_date,
     status,
-    pattern,
-    notes,
+    pattern
     CASE 
         WHEN status = 1 THEN date(date_attempted, '+3 days')
         WHEN status = 2 THEN date(first_review_date, '+7 days')
@@ -61,8 +60,7 @@ SELECT
     second_review_date,
     final_review_date,
     status,
-    pattern,
-    notes,
+    pattern
     CASE 
         WHEN status = 1 THEN date(date_attempted, '+3 days')
         WHEN status = 2 THEN date(first_review_date, '+7 days')
@@ -70,19 +68,19 @@ SELECT
         ELSE NULL
     END as next_review_date,
     CASE 
-        WHEN status = 4 THEN 'Mastered'
         WHEN status = 1 AND date(date_attempted, '+3 days') <= date('now') THEN 'Due'
         WHEN status = 2 AND date(first_review_date, '+7 days') <= date('now') THEN 'Due'
         WHEN status = 3 AND date(second_review_date, '+20 days') <= date('now') THEN 'Due'
         ELSE 'Scheduled'
     END as review_status
 FROM problems 
+WHERE status < 4 
 ORDER BY date_attempted DESC;
 
 -- 3. Insert new problem
 -- name: CreateProblem :one
-INSERT INTO problems (problem_number, title, difficulty, pattern, notes)
-VALUES (?, ?, ?, ?, ?)
+INSERT INTO problems (problem_number, title, difficulty, pattern )
+VALUES (?, ?, ?, ?)
 RETURNING id;
 
 -- 4. Update problem status (mark as reviewed)
@@ -140,9 +138,9 @@ ORDER BY count DESC;
 
 -- 8. Update problem notes
 -- name: UpdateProblemNotes :exec
-UPDATE problems 
-SET notes = ? 
-WHERE id = ?;
+UPDATE problem_notes
+  set content = ?
+  where id = ?;
 
 -- 9. Delete problem
 -- name: DeleteProblem :exec
@@ -160,8 +158,7 @@ SELECT
     second_review_date,
     final_review_date,
     status,
-    pattern,
-    notes
+    pattern
 FROM problems 
 WHERE id = ?;
 
@@ -177,3 +174,37 @@ SELECT
 FROM problems 
 WHERE title LIKE ? OR pattern LIKE ?
 ORDER BY problem_number ASC;
+
+-- 12: Get problem notes
+-- name: GetProblemNotes :many
+SELECT
+  id,
+  problem_id,
+  content,
+  created_at,
+  updated_at
+FROM problem_notes
+WHERE problem_id = ?;
+
+-- 13: Add problem_notes
+-- name: AddProblemNotes :exec
+INSERT INTO problem_notes (problem_id, content)
+VALUES (?, ?);
+
+-- 14: Delete problem notes
+DELETE FROM problem_notes
+WHERE id = ?;
+
+-- STUDY PLANS TABLE QUERIES
+-- 1. Create a new study plan
+-- name: CreateStudyPlan :one
+INSERT INTO study_plans (title, difficulty_level)
+  VALUES (?, ?)
+  RETURNING id;
+
+-- 2. Insert into plan_problems
+-- name: AddProblemsToPlan :exec
+INSERT INTO plan_problems (plan_id, problem_id)
+  VALUES (?, ?);
+
+
