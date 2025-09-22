@@ -1,5 +1,5 @@
 import { createSignal, createResource, For } from "solid-js";
-import { Search, ChevronLeft, ChevronRight, Calendar } from "lucide-solid";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-solid";
 import { useApi } from "../api/agent";
 import {
   getDifficultyBadgeClass,
@@ -11,6 +11,10 @@ import {
 import clsx from "clsx";
 import { handleApiCall } from "../api/call-handler";
 import { useKeyedLoaders } from "../api/use-loaders";
+import SimpleTable from "../components/Table";
+import { formatToReadableDate } from "../utils/dates";
+import SearchTextInput from "../components/SearchTextInput";
+import Select from "../components/Select";
 
 const Problems = () => {
   const [searchTerm, setSearchTerm] = createSignal("");
@@ -90,38 +94,24 @@ const Problems = () => {
       <div class="card bg-base-200 shadow-sm">
         <div class="card-body p-4">
           <div class="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div class="flex-1">
-              <div class="form-control">
-                <div class="input-group">
-                  <span class="bg-base-300">
-                    <Search size={20} />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search by title or number..."
-                    class="input input-bordered w-full"
-                    value={searchTerm()}
-                    onInput={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
+            <SearchTextInput
+              value={searchTerm()}
+              onInput={(v) => setSearchTerm(v)}
+            />
             {/* Difficulty Filter */}
-            <div class="form-control w-full lg:w-auto">
-              <select
-                class="select select-bordered"
-                value={difficultyFilter()}
-                onChange={(e) => setDifficultyFilter(e.target.value)}
-              >
-                <option value="all">All Difficulties</option>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
-
+            <Select
+              value={difficultyFilter()}
+              onInput={(v) => setDifficultyFilter(v)}
+              label="Difficulty"
+              name="difficulty"
+              errors={{}}
+              options={[
+                { value: "all", label: "All Difficulties" },
+                { value: "Easy", label: "Easy" },
+                { value: "Medium", label: "Medium" },
+                { value: "Hard", label: "Hard" },
+              ]}
+            />
             {/* Status Filter */}
             <div class="form-control w-full lg:w-auto">
               <select
@@ -169,75 +159,76 @@ const Problems = () => {
             <>
               {/* Desktop Table */}
               <div class="hidden md:block overflow-x-auto">
-                <table class="table table-zebra">
-                  <thead>
-                    <tr>
-                      <th>Problem #</th>
-                      <th>Title</th>
-                      <th>Difficulty</th>
-                      <th>Status</th>
-                      <th>Pattern</th>
-                      <th>Date Attempted</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <For each={paginatedProblems()}>
-                      {(problem) => (
-                        <tr>
-                          <td class="font-mono">{problem.problem_number}</td>
-                          <td class="font-semibold">{problem.title}</td>
-                          <td>
-                            <div
-                              class={getDifficultyBadgeClass(
-                                problem.difficulty,
-                              )}
-                            >
-                              {getDifficultyLabel(problem.difficulty)}
-                            </div>
-                          </td>
-                          <td>
-                            <div
-                              class={clsx(
-                                getStatusBadgeClass(problem.status),
-                                "text-xs badge-xl",
-                              )}
-                            >
-                              {getShorthandStatus(problem.status)}
-                            </div>
-                          </td>
-                          <td>
-                            <For each={problem.pattern.split(" ")}>
-                              {(p) => <kbd class="text-xs kbd">{p}</kbd>}
-                            </For>
-                          </td>
-                          <td>
-                            {new Date(
-                              problem.date_attempted,
-                            ).toLocaleDateString()}
-                          </td>
-                          <td>
-                            <div class="flex gap-2">
-                              <button class="btn btn-xs btn-primary">
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDelete(problem.id)}
-                                class="btn btn-xs btn-error"
-                                disabled={isLoading(
-                                  "handleDeleteLoading",
-                                  problem.id,
-                                )}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </For>
-                  </tbody>
-                </table>
+                <SimpleTable
+                  columns={[
+                    {
+                      key: "problem_number",
+                      label: "Problem #",
+                      render: ({ problem_number }) => (
+                        <td class="font-mono">{problem_number}</td>
+                      ),
+                    },
+                    {
+                      key: "title",
+                      label: "Title",
+                      render: ({ title }) => (
+                        <td class="font-semibold">{title}</td>
+                      ),
+                    },
+                    {
+                      key: "difficulty",
+                      label: "Difficulty",
+                      render: ({ difficulty }) => (
+                        <div class={getDifficultyBadgeClass(difficulty)}>
+                          {getDifficultyLabel(difficulty)}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "status",
+                      label: "Status",
+                      render: ({ status }) => (
+                        <div
+                          class={clsx(
+                            getStatusBadgeClass(status),
+                            "text-xs badge-xl",
+                          )}
+                        >
+                          {getShorthandStatus(status)}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "pattern",
+                      label: "Pattern",
+                      render: ({ pattern }) => (
+                        <For each={pattern.split(" ")}>
+                          {(p) => <kbd class="text-xs kbd">{p}</kbd>}
+                        </For>
+                      ),
+                    },
+                    {
+                      key: "date_attempted",
+                      label: "Date Attempted",
+                      render: ({ date_attempted }) => (
+                        <span>{formatToReadableDate(date_attempted)}</span>
+                      ),
+                    },
+                  ]}
+                  actions={(problem) => (
+                    <div class="flex gap-2">
+                      <button class="btn btn-xs btn-primary">Edit</button>
+                      <button
+                        onClick={() => handleDelete(problem.id)}
+                        class="btn btn-xs btn-error"
+                        disabled={isLoading("handleDeleteLoading", problem.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                  data={paginatedProblems()}
+                />
               </div>
 
               {/* Mobile Cards */}
