@@ -1,13 +1,12 @@
 import { For } from "solid-js";
 import {
   Hash,
-  FileText,
   Tag,
   Calendar,
   Clock,
   NotebookText,
-  Edit,
   Trash2,
+  Pencil,
 } from "lucide-solid";
 import type { Problem } from "../types/Problem";
 import Badge from "./Badge";
@@ -42,17 +41,20 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
   const mockNotes: ProblemNote[] = [
     {
       id: 1,
-      content: "Initial approach used nested loops - O(n²) time complexity. Need to optimize.",
+      content:
+        "Initial approach used nested loops - O(n²) time complexity. Need to optimize.",
       created_at: "2024-01-15T10:30:00Z",
     },
     {
       id: 2,
-      content: "Discovered two-pointer technique reduces complexity to O(n). Much better!",
+      content:
+        "Discovered two-pointer technique reduces complexity to O(n). Much better!",
       created_at: "2024-01-20T14:45:00Z",
     },
     {
       id: 3,
-      content: "Edge cases to remember: empty array, single element, all duplicates.",
+      content:
+        "Edge cases to remember: empty array, single element, all duplicates.",
       created_at: "2024-01-25T09:15:00Z",
     },
   ];
@@ -65,8 +67,7 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
           <div>
             <div class="flex items-center gap-3 mb-2">
               <Badge variant="outline" class="font-mono text-lg">
-                <Hash size={16} />
-                #{props.problem.problem_number}
+                <Hash size={16} />#{props.problem.problem_number}
               </Badge>
               <h1 class="text-3xl font-bold">{props.problem.title}</h1>
             </div>
@@ -81,12 +82,12 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
           </div>
           <div class="flex gap-2">
             <Button variant="primary" size="sm" onClick={props.onEdit}>
-              <Edit size={16} />
+              <Pencil size={16} />
               Edit
             </Button>
-            <Button 
-              variant="error" 
-              size="sm" 
+            <Button
+              variant="error"
+              size="sm"
               onClick={props.onDelete}
               loading={props.isDeleting}
               disabled={props.isDeleting}
@@ -125,10 +126,9 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
               <span>Last Updated</span>
             </div>
             <p class="font-semibold">
-              {props.problem.updated_at 
+              {props.problem.updated_at
                 ? formatToReadableDate(props.problem.updated_at)
-                : "Never"
-              }
+                : "Never"}
             </p>
           </div>
         </div>
@@ -160,7 +160,7 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
               </p>
             </div>
           </div>
-          
+
           {props.problem.first_review_date && (
             <div class="flex items-center gap-4">
               <div class="w-3 h-3 bg-warning rounded-full"></div>
@@ -238,10 +238,10 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
                     </div>
                     <div class="flex gap-2 ml-4">
                       <Button variant="ghost" size="xs">
-                        <Edit size={14} />
+                        <Pencil size={14} />
                       </Button>
-                      <Button 
-                        variant="error" 
+                      <Button
+                        variant="error"
                         size="xs"
                         onClick={() => props.onDeleteNote?.(note.id)}
                       >
@@ -260,3 +260,4 @@ const ProblemDetails = (props: ProblemDetailsProps) => {
 };
 
 export default ProblemDetails;
+

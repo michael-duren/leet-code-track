@@ -11,7 +11,9 @@ const Dashboard = () => {
   const [todaysProblems, { mutate: mutateReviewProblems }] = createResource(
     api.Problems.listToday,
   );
-  const [upcomingProblems] = createResource(api.Problems.listProblemsToReview);
+  const [upcomingProblems, { refetch: refetchUpcoming }] = createResource(
+    api.Problems.listProblemsToReview,
+  );
   const [stats] = createResource(api.Problems.getStats);
   const loaderKeys = [
     "handleMarkReviewLoading",
@@ -39,18 +41,9 @@ const Dashboard = () => {
       resultProcessor: () => {
         mutateReviewProblems((p) => {
           if (!p) return p;
-          return p
-            .map((pr) => {
-              if (
-                pr.id === problem.id &&
-                pr.status < ProblemStatuses.Mastered
-              ) {
-                return { ...pr, status: pr.status + 1 };
-              }
-              return pr;
-            })
-            .filter((pr) => pr.status < ProblemStatuses.Mastered);
+          return p.filter((pr) => pr.id !== problem.id);
         });
+        refetchUpcoming();
       },
     });
   };
@@ -78,7 +71,6 @@ const Dashboard = () => {
 
   return (
     <div class="space-y-8">
-      {/* Hero Section */}
       <Card variant="base-200" class="hero rounded-lg">
         <div class="hero-content text-center">
           <div class="max-w-md">
@@ -91,7 +83,6 @@ const Dashboard = () => {
         </div>
       </Card>
 
-      {/* Quick Stats */}
       <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
         <div class="stat">
           <div class="stat-figure text-primary">

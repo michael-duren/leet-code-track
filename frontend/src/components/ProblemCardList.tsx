@@ -1,12 +1,17 @@
-import { For, type Component } from "solid-js";
+import { For, Show, type Component } from "solid-js";
 import { type Problem, ProblemStatuses } from "../types/Problem";
 import { getDifficultyBadgeClass, getDifficultyLabel } from "../utils/problems";
 import Button from "./Button";
 import Card from "./Card";
 import Badge from "./Badge";
+import clsx from "clsx";
+import { isPast, isToday } from "../utils/dates";
+import KeyValue from "./KeyValue";
+
+type ProblemWithReviewDate = Problem & { next_review_date?: string };
 
 interface ProblemCardListProps {
-  problems: Problem[];
+  problems: ProblemWithReviewDate[];
   isLoading: (
     key: "handleMarkReviewLoading" | "handleNeedsMoreReviewLoading",
     id: number,
@@ -15,7 +20,6 @@ interface ProblemCardListProps {
   handleNeedsMoreReview: (problemId: number) => void;
   title: string;
 }
-
 const ProblemCardList: Component<ProblemCardListProps> = (props) => {
   return (
     <Card variant="base-100" shadow="xl">
@@ -44,9 +48,37 @@ const ProblemCardList: Component<ProblemCardListProps> = (props) => {
                       #{problem.problem_number}
                     </Badge>
                     <h3 class="font-semibold text-lg">{problem.title}</h3>
-                    <Badge class={getDifficultyBadgeClass(problem.difficulty)}>
-                      {getDifficultyLabel(problem.difficulty)}
-                    </Badge>
+                    <KeyValue
+                      label="Difficulty"
+                      value={
+                        <Badge
+                          class={getDifficultyBadgeClass(problem.difficulty)}
+                        >
+                          {getDifficultyLabel(problem.difficulty)}
+                        </Badge>
+                      }
+                    />
+                    <Show when={problem.next_review_date}>
+                      <KeyValue
+                        label="Due:"
+                        value={
+                          <div
+                            class={clsx(
+                              isToday(problem.next_review_date ?? "")
+                                ? "badge-warning"
+                                : isPast(problem.next_review_date ?? "")
+                                  ? "badge-error"
+                                  : "badge-primary",
+                              "ml-auto text-xs font-semibold badge",
+                            )}
+                          >
+                            {new Date(
+                              problem?.next_review_date ?? "",
+                            ).toLocaleDateString()}
+                          </div>
+                        }
+                      />
+                    </Show>
                   </div>
                   <div class="flex items-center gap-4 text-sm text-base-content/70">
                     <Badge variant="ghost">{problem.pattern}</Badge>
