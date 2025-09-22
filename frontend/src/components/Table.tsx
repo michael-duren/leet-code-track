@@ -31,7 +31,7 @@ const SimpleTable = <T,>(props: TableProps<T>): JSX.Element => {
         props.containerClasses,
       )}
     >
-      <table class="table table-xs @md/simple-table:table-md @xl/simple-table:table-lg p-4 rounded-lg table-zebra">
+      <table class="table table-xs @md/simple-table:table-md  p-4 rounded-lg table-zebra">
         <thead>
           <tr>
             <For each={props.columns}>

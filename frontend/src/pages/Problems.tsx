@@ -83,7 +83,7 @@ const Problems = () => {
   }
 
   return (
-    <div class="space-y-6">
+    <div class="flex flex-col gap-8">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 class="text-3xl font-bold">All Problems</h1>
@@ -94,9 +94,8 @@ const Problems = () => {
         </div>
       </div>
 
-      {/* Search and Filters */}
       <Card variant="base-200" shadow="sm" padding="md">
-        <div class="flex items-center flex-col lg:flex-row gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center w-full">
           <SearchTextInput
             value={searchTerm()}
             onInput={(v) => setSearchTerm(v)}
@@ -116,7 +115,6 @@ const Problems = () => {
               { value: "Hard", label: "Hard" },
             ]}
           />
-          {/* Status Filter */}
           <Select
             hideLabel
             value={statusFilter()}
@@ -133,14 +131,14 @@ const Problems = () => {
             ]}
           />
 
-          {/* Clear Filters */}
-          <Button variant="secondary" onClick={clearFilters}>
-            Clear Filters
-          </Button>
+          <div>
+            <Button variant="secondary" onClick={clearFilters}>
+              Clear Filters
+            </Button>
+          </div>
         </div>
       </Card>
 
-      {/* Problems Table */}
       <Card variant="base-100" shadow="xl" padding="none">
         {problems.loading && (
           <div class="p-8 text-center">
@@ -161,7 +159,6 @@ const Problems = () => {
 
         {filteredProblems().length > 0 && (
           <>
-            {/* Desktop Table */}
             <div class="hidden md:block overflow-x-auto">
               <SimpleTable
                 columns={[
@@ -176,7 +173,9 @@ const Problems = () => {
                     key: "title",
                     label: "Title",
                     render: ({ title }) => (
-                      <td class="font-semibold">{title}</td>
+                      <td class="font-semibold hover:underline cursor-pointer">
+                        {title}
+                      </td>
                     ),
                   },
                   {
@@ -218,7 +217,7 @@ const Problems = () => {
                   },
                 ]}
                 actions={(problem) => (
-                  <div class="flex gap-2">
+                  <div class="flex flex-col gap-2">
                     <Button variant="primary" size="xs">
                       Edit
                     </Button>
@@ -236,7 +235,6 @@ const Problems = () => {
               />
             </div>
 
-            {/* Mobile Cards */}
             <div class="md:hidden p-4 space-y-4">
               <For each={paginatedProblems()}>
                 {(problem) => (
@@ -285,7 +283,6 @@ const Problems = () => {
               </For>
             </div>
 
-            {/* Pagination */}
             {totalPages() > 1 && (
               <Pagination
                 currentPage={currentPage()}
