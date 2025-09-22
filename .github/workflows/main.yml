@@ -1,0 +1,40 @@
+name: Main
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.23"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build
+        run: |
+          cd frontend && npm ci && npm run build && cd ..
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/leet-track-linux-amd64 cmd/api/main.go
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/leet-track-darwin-amd64 cmd/api/main.go
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/leet-track-windows-amd64.exe cmd/api/main.go
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          body: |
+            Download the binary for your platform and run it!
+            The app will be available at http://localhost:8080
