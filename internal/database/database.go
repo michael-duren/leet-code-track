@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -40,7 +41,9 @@ type service struct {
 }
 
 var (
-	dburl      = os.Getenv("BLUEPRINT_DB_URL")
+	dbPath     = os.Getenv("DB_PATH")
+	dbName     = os.Getenv("DB_NAME")
+	env        = os.Getenv("APP_ENV")
 	dbInstance *service
 )
 
@@ -50,7 +53,14 @@ func NewDatabase() Service {
 		return dbInstance
 	}
 
-	db, err := sql.Open("sqlite3", dburl)
+	url, err := getDBURL()
+	if err != nil || url == nil {
+		log.Fatal(err)
+		panic(err)
+	}
+
+	log.Info("url is ", "url", *url)
+	db, err := sql.Open("sqlite3", *url)
 	if err != nil {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
@@ -68,6 +78,43 @@ func NewDatabase() Service {
 		queries: queries,
 	}
 	return dbInstance
+}
+
+func getDBURL() (*string, error) {
+	dataDir, err := getDataDir()
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = os.Stat(dataDir); err != nil {
+		err = os.MkdirAll(dataDir, 0o755)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	dbPath = filepath.Join(dataDir, dbName)
+	return &dbPath, nil
+}
+
+func getDataDir() (string, error) {
+	if env == "local" && dbPath != "" {
+		return dbPath, nil
+	}
+
+	if xdgDataHome := os.Getenv("XDG_DATA_HOME"); xdgDataHome != "" {
+		log.Infof("Creating DB at %s", xdgDataHome)
+		return filepath.Join(xdgDataHome, "leet-track"), nil
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	path, err := filepath.Join(homeDir, ".local", "share", "leet-track"), nil
+	log.Infof("Creating directory at: %s", path)
+	return path, err
 }
 
 func (s *service) DB() *sql.DB {
@@ -148,6 +195,6 @@ func (s *service) Health() map[string]string {
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
 func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", dburl)
+	log.Printf("Disconnected from database: %s", dbPath)
 	return s.db.Close()
 }

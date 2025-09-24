@@ -101,6 +101,13 @@ const Problems = () => {
             Showing {filteredProblems().length} of {problems()?.length || 0}{" "}
             problems
           </p>
+          <Button
+            variant="primary"
+            class="mt-4"
+            onClick={() => navigate("/add")}
+          >
+            New Problem
+          </Button>
         </div>
       </div>
 
