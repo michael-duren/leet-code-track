@@ -98,9 +98,10 @@ func getDBURL() (*string, error) {
 }
 
 func getDataDir() (string, error) {
-	if env == "local" && dbPath != "" {
-		return dbPath, nil
-	}
+	// currently I want my db changes to persist
+	// if env == "local" && dbPath != "" {
+	// 	return dbPath, nil
+	// }
 
 	if xdgDataHome := os.Getenv("XDG_DATA_HOME"); xdgDataHome != "" {
 		log.Infof("Creating DB at %s", xdgDataHome)
