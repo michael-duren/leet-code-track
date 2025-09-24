@@ -93,6 +93,10 @@ func getDBURL() (*string, error) {
 		}
 	}
 
+	if dbName == "" {
+		dbName = "leet-track.db"
+	}
+
 	dbPath = filepath.Join(dataDir, dbName)
 	return &dbPath, nil
 }
